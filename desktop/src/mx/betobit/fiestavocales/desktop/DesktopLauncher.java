@@ -5,8 +5,11 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import mx.betobit.fiestavocales.FiestaDeLasVocales;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
+	public static void main(String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.title = "Fiesta de las vocales";
+		config.width = 800;
+		config.height = 480;
 		new LwjglApplication(new FiestaDeLasVocales(), config);
 	}
 }

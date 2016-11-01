@@ -1,27 +1,40 @@
 package mx.betobit.fiestavocales;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class FiestaDeLasVocales extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	
+import mx.betobit.fiestavocales.screens.MainScreen;
+
+public class FiestaDeLasVocales extends Game {
+
+	private SpriteBatch batch;
+
+	/**
+	 * Return the current common sprite batch.
+	 */
+	public SpriteBatch getBatch() {
+		return batch;
+	}
+
+	/**
+	 * Get the common resources used by all the game, such as
+	 * sounds, sprite batch and atlas.
+	 */
 	@Override
-	public void create () {
+	public void create() {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		setScreen(new MainScreen(this));
 	}
 
 	@Override
-	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+	public void render() {
+		super.render();
 	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		batch.dispose();
+	}
+
 }
