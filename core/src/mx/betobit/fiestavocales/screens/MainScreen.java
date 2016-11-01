@@ -45,6 +45,10 @@ public class MainScreen extends BaseScreen {
 		background = new Sprite(textureBackground);
 		stage = new Stage(getViewport());
 
+		// Set background
+		background.setPosition(0, 0);
+		background.setSize(width, height);
+
 		stage.addActor(setMenuTable());
 		Gdx.input.setInputProcessor(stage);
 	}
@@ -58,10 +62,6 @@ public class MainScreen extends BaseScreen {
 	private Table setMenuTable() {
 		Table table = new Table();
 		TextureAtlas atlas = new TextureAtlas("menu/atlas.txt");
-
-		// Set background
-		background.setPosition(0, 0);
-		background.setSize(width, height);
 
 		Skin skinButtons = new Skin(atlas);
 
@@ -106,7 +106,7 @@ public class MainScreen extends BaseScreen {
 
 		// Menu title
 		Image menuTitle = new Image(atlas.findRegion("menu"));
-		table.add(menuTitle).height(40).width(90).colspan(3).padBottom(70);
+		table.add(menuTitle).height(40).width(100).colspan(3).padBottom(70);
 		table.row();
 
 		// Set table with the buttons
