@@ -1,0 +1,96 @@
+atlas.png
+size: 900, 966
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+dresser
+  rotate: false
+  xy: 300, 256
+  size: 300, 355
+  orig: 300, 355
+  offset: 0, 0
+  index: -1
+dresser_hover
+  rotate: false
+  xy: 0, 611
+  size: 300, 355
+  orig: 300, 355
+  offset: 0, 0
+  index: -1
+help
+  rotate: false
+  xy: 384, 128
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+help_hover
+  rotate: false
+  xy: 512, 128
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+home
+  rotate: false
+  xy: 256, 128
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+home_hover
+  rotate: false
+  xy: 533, 0
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+menu
+  rotate: false
+  xy: 0, 0
+  size: 277, 104
+  orig: 277, 104
+  offset: 0, 0
+  index: -1
+profile
+  rotate: false
+  xy: 300, 611
+  size: 300, 355
+  orig: 300, 355
+  offset: 0, 0
+  index: -1
+profile_hover
+  rotate: false
+  xy: 600, 256
+  size: 300, 355
+  orig: 300, 355
+  offset: 0, 0
+  index: -1
+scoreboard
+  rotate: false
+  xy: 277, 0
+  size: 256, 128
+  orig: 256, 128
+  offset: 0, 0
+  index: -1
+scoreboard_hover
+  rotate: false
+  xy: 0, 128
+  size: 256, 128
+  orig: 256, 128
+  offset: 0, 0
+  index: -1
+store
+  rotate: false
+  xy: 0, 256
+  size: 300, 355
+  orig: 300, 355
+  offset: 0, 0
+  index: -1
+store_hover
+  rotate: false
+  xy: 600, 611
+  size: 300, 355
+  orig: 300, 355
+  offset: 0, 0
+  index: -1
