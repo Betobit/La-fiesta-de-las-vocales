@@ -1,19 +1,26 @@
 balloons.png
-size: 227, 1276
+size: 114, 915
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 balloon1
   rotate: false
   xy: 0, 0
-  size: 227, 638
-  orig: 227, 638
+  size: 114, 305
+  orig: 114, 305
   offset: 0, 0
   index: -1
 balloon2
   rotate: false
-  xy: 0, 638
-  size: 227, 638
-  orig: 227, 638
+  xy: 0, 305
+  size: 114, 305
+  orig: 114, 305
+  offset: 0, 0
+  index: -1
+balloon3
+  rotate: false
+  xy: 0, 610
+  size: 114, 305
+  orig: 114, 305
   offset: 0, 0
   index: -1

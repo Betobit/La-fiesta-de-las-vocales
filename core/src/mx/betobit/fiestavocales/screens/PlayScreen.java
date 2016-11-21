@@ -3,10 +3,9 @@ package mx.betobit.fiestavocales.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,13 +13,17 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
-
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Random;
 
+import box2dLight.Light;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
+import mx.betobit.fiestavocales.Constants;
 import mx.betobit.fiestavocales.FiestaDeLasVocales;
+import mx.betobit.fiestavocales.sprites.Balloon;
 
 /**
  * Created by jesusmartinez on 31/10/16.
@@ -36,7 +39,8 @@ public class PlayScreen extends BaseScreen {
 	private RayHandler rayHandler;
 
 	// Bodies
-	private ArrayList<Body> balloons;
+	private ArrayList<Balloon> balloons;
+	private ArrayList<Light> lights;
 
 	// Debugging
 	private Box2DDebugRenderer b2dr;
@@ -50,7 +54,8 @@ public class PlayScreen extends BaseScreen {
 		width = getWidth();
 		height= getHeight();
 
-		balloons = new ArrayList<Body>();
+		balloons = new ArrayList<Balloon>();
+		lights = new ArrayList<Light>();
 		b2dr = new Box2DDebugRenderer();
 		shapeRenderer = new ShapeRenderer();
 	}
@@ -89,22 +94,28 @@ public class PlayScreen extends BaseScreen {
 		return bodies;
 	}
 
+	/**
+	 * Init world, lights and create balloons.
+	 */
 	@Override
 	public void show() {
 		// Background
-		Texture textureBackground = new Texture("bkg_sky.png");
+		Texture textureBackground = new Texture("bkg_sky.jpg");
 		background = new Sprite(textureBackground);
 
 		// World
-		world = new World(new Vector2(0, 9.8f), true);
+		world = new World(new Vector2(0, 0f), true);
 		rayHandler = new RayHandler(world);
-		rayHandler.setAmbientLight(0.4f);
+		rayHandler.setAmbientLight(0.7f);
 
-		balloons = createBodies(1, BodyDef.BodyType.DynamicBody);
+		for(int i = 0; i < 15; i++)
+			balloons.add(new Balloon(this, MathUtils.random(0, width), MathUtils.random(0, height/2)));
 
-		for (Body b : balloons) {
-			PointLight light = new PointLight(rayHandler, 200, Color.FIREBRICK, 80, b.getPosition().x, height / 2);
-			light.attachToBody(b);
+		// Attach lights
+		for (Balloon b : balloons) {
+			PointLight light = new PointLight(rayHandler, 200, Color.PURPLE, 80, b.getBody().getPosition().x, height / 2);
+			light.attachToBody(b.getBody());
+			lights.add(light);
 		}
 	}
 
@@ -129,27 +140,46 @@ public class PlayScreen extends BaseScreen {
 		batch.end();
 
 		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-		b2dr.render(world, getCamera().combined);
 		rayHandler.setCombinedMatrix(getCamera());
 		rayHandler.updateAndRender();
+
+		if (Constants.DEBUGGING) {
+			b2dr.render(world, getCamera().combined);
+		}
+
+		// Render balloon and destroy it if is out.
+		/*ListIterator iterator = balloons.listIterator();
+		while (iterator.hasNext()) {
+			Balloon b = (Balloon)iterator.next();
+
+			if (b.getBody().getPosition().y > height/2) {
+				world.destroyBody(b.getBody());
+				//lights.get(iterator.nextIndex()).remove();
+				iterator.remove();
+			}
+			b.update(delta);
+		}*/
+
+		ListIterator iterator = lights.listIterator();
+		while (iterator.hasNext()) {
+			Balloon b = balloons.get(iterator.nextIndex());
+			Light l = (Light)iterator.next();
+
+			if (b.getY() > height) {
+				world.destroyBody(b.getBody()); // Remove body from world
+				balloons.remove(b); // Remove balloon from list
+				l.remove(); // Remove light from world
+				iterator.remove(); // Remove light from list
+			}
+			b.update(delta);
+		}
 	}
 
 	@Override
 	public void dispose() {
 	}
 
-	private Texture spriteSheet;
-	private TextureRegion textureRegion;
-	private Animation animation;
-
-	// TMP
-	public void foo() {
-		TextureRegion[] frames = new TextureRegion[2];
-		for(int i = 0; i < 2; i++) {
-			spriteSheet = new Texture("player/player_" + (i + 1) + ".png");
-			textureRegion = new TextureRegion(spriteSheet, 227, 638);
-			frames[i] = textureRegion;
-			animation = new Animation(0.06f, frames);
-		}
+	public World getWorld() {
+		return world;
 	}
 }
