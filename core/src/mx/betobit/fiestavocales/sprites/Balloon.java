@@ -1,5 +1,6 @@
 package mx.betobit.fiestavocales.sprites;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
-import java.util.Random;
+
 import mx.betobit.fiestavocales.screens.PlayScreen;
 
 /**
@@ -30,12 +31,13 @@ public class Balloon extends Sprite {
 	private Animation animation;
 	private Body body;
 
-	public Balloon(PlayScreen playScreen, float x, float y) {
+	public Balloon(PlayScreen playScreen, Color color, float x, float y) {
 		duration = 0;
 		this.screen = playScreen;
 		this.world = screen.getWorld();
 		this.batch = screen.getGame().getBatch();
 
+		setColor(color);
 		setPosition(x, y);
 		defineBox2dBody();
 		defineSpriteSheet();
@@ -50,11 +52,11 @@ public class Balloon extends Sprite {
 		TextureRegion frame = animation.getKeyFrame(duration, true);
 
 		// Center sprite in body
-		setX(body.getPosition().x - 20);
-		setY(body.getPosition().y - 74);
+		setX(body.getPosition().x - 25);
+		setY(body.getPosition().y - 95);
 
 		batch.begin();
-		batch.draw(frame, getX(), getY(), 40, 96);
+		batch.draw(frame, getX(), getY(), 50, 120);
 		batch.end();
 	}
 	/**
@@ -69,26 +71,33 @@ public class Balloon extends Sprite {
 		bdef.position.set(getX(), getY());
 
 		body = world.createBody(bdef);
-		shape.setRadius(20f);
+		shape.setRadius(25f);
 		fdef.shape = shape;
 		fdef.density = 1f;
 		fdef.restitution = 0f;
 		body.createFixture(fdef);
 
-		body.setLinearVelocity(MathUtils.random(-10, 10), MathUtils.random(20, 80) );
+		body.setLinearVelocity(MathUtils.random(-10, 10), MathUtils.random(0, 20) );
 	}
 
 	/**
 	 * Get the sprite sheet of the balloon, split it and create the animation.
 	 */
 	private void defineSpriteSheet() {
-		spriteSheet = new Texture("balloons.png");
+		String color = getColor().toString();
+		String scarlet = Color.SCARLET.toString();
+
+		if(color.contains(scarlet.substring(0,5)))
+			spriteSheet = new Texture("balloons_pink.png");
+		else
+			spriteSheet = new Texture("balloons_green.png");
+
 		textureRegion = new TextureRegion(spriteSheet, 114, 915);
 
 		TextureRegion[][] splited = textureRegion.split(114, 305);
-		TextureRegion[] frames = new TextureRegion[3];
+		TextureRegion[] frames = new TextureRegion[2];
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 2; i++)
 			frames[i] = splited[i][0];
 		animation = new Animation(MathUtils.random(0.1f, 0.3f), frames);
 	}
@@ -99,5 +108,9 @@ public class Balloon extends Sprite {
 	 */
 	public Body getBody() {
 		return body;
+	}
+
+	public Texture getSpriteSheet() {
+		return spriteSheet;
 	}
 }

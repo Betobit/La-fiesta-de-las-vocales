@@ -8,15 +8,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ListIterator;
-import java.util.Random;
 
 import box2dLight.Light;
 import box2dLight.PointLight;
@@ -41,6 +37,7 @@ public class PlayScreen extends BaseScreen {
 	// Bodies
 	private ArrayList<Balloon> balloons;
 	private ArrayList<Light> lights;
+	private boolean newBalloon;
 
 	// Debugging
 	private Box2DDebugRenderer b2dr;
@@ -61,40 +58,6 @@ public class PlayScreen extends BaseScreen {
 	}
 
 	/**
-	 * Create box2d bodies.
-	 *
-	 * @param index    The layer to draw.
-	 * @param bodyType Type of the body to draw.
-	 * @return ArrayList of created bodies.
-	 */
-	private ArrayList<Body> createBodies(int index, BodyDef.BodyType bodyType) {
-		Body body;
-		BodyDef bdef = new BodyDef();
-		FixtureDef fdef = new FixtureDef();
-		CircleShape shape = new CircleShape();
-		ArrayList<Body> bodies = new ArrayList<Body>();
-		Random ran = new Random();
-
-		for(int i = 0; i < 10; i++) {
-			bdef.type = bodyType;
-			bdef.position.set(ran.nextInt(width) , ran.nextInt(100));
-
-			body = world.createBody(bdef);
-			shape.setRadius(20f);
-			fdef.shape = shape;
-			fdef.density = 1f;
-			fdef.restitution = 0f;
-			body.createFixture(fdef);
-
-			body.setLinearVelocity(0, ran.nextFloat() * -5);
-			bodies.add(body);
-		}
-
-		shape.dispose();
-		return bodies;
-	}
-
-	/**
 	 * Init world, lights and create balloons.
 	 */
 	@Override
@@ -104,19 +67,31 @@ public class PlayScreen extends BaseScreen {
 		background = new Sprite(textureBackground);
 
 		// World
-		world = new World(new Vector2(0, 0f), true);
+		world = new World(new Vector2(0, 4.9f), true);
 		rayHandler = new RayHandler(world);
 		rayHandler.setAmbientLight(0.7f);
 
-		for(int i = 0; i < 15; i++)
-			balloons.add(new Balloon(this, MathUtils.random(0, width), MathUtils.random(0, height/2)));
+		newBalloon = false;
+		for(int i = 0; i < 15; i++) {
+			Balloon b = new Balloon(this,
+					MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET,
+					MathUtils.random(0, width), MathUtils.random(0, height));
 
-		// Attach lights
-		for (Balloon b : balloons) {
-			PointLight light = new PointLight(rayHandler, 200, Color.PURPLE, 80, b.getBody().getPosition().x, height / 2);
-			light.attachToBody(b.getBody());
-			lights.add(light);
+			balloons.add(b);
+			attachLightToBody(b.getBody(), b.getColor(), 90);
 		}
+	}
+
+	/**
+	 * Add balloon with light.
+	 */
+	private void addBalloon() {
+		Balloon b = new Balloon(this,
+				MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET,
+				MathUtils.random(0, width), -30);
+
+		balloons.add(b);
+		attachLightToBody(b.getBody(), b.getColor(), 90);
 	}
 
 	/**
@@ -127,8 +102,9 @@ public class PlayScreen extends BaseScreen {
 	 * @param distance Distance of the light.
 	 */
 	private void attachLightToBody(Body body, Color color, int distance) {
-		new PointLight(rayHandler, 200, color, distance, width / 2, height / 2)
-				.attachToBody(body);
+		PointLight light = new PointLight(rayHandler, 10, color, distance, width / 2, height / 2);
+		light.attachToBody(body);
+		lights.add(light);
 	}
 
 	@Override
@@ -147,19 +123,7 @@ public class PlayScreen extends BaseScreen {
 			b2dr.render(world, getCamera().combined);
 		}
 
-		// Render balloon and destroy it if is out.
-		/*ListIterator iterator = balloons.listIterator();
-		while (iterator.hasNext()) {
-			Balloon b = (Balloon)iterator.next();
-
-			if (b.getBody().getPosition().y > height/2) {
-				world.destroyBody(b.getBody());
-				//lights.get(iterator.nextIndex()).remove();
-				iterator.remove();
-			}
-			b.update(delta);
-		}*/
-
+		// Render balloon and destroy it when is out of the screen.
 		ListIterator iterator = lights.listIterator();
 		while (iterator.hasNext()) {
 			Balloon b = balloons.get(iterator.nextIndex());
@@ -170,13 +134,23 @@ public class PlayScreen extends BaseScreen {
 				balloons.remove(b); // Remove balloon from list
 				l.remove(); // Remove light from world
 				iterator.remove(); // Remove light from list
+				newBalloon = true;
 			}
 			b.update(delta);
+		}
+
+		if(newBalloon) {
+			addBalloon();
+			newBalloon = false;
 		}
 	}
 
 	@Override
 	public void dispose() {
+		rayHandler.dispose();
+		b2dr.dispose();
+		for(Balloon b : balloons)
+			b.getSpriteSheet().dispose();
 	}
 
 	public World getWorld() {
