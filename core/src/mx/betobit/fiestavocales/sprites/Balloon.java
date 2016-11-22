@@ -99,7 +99,7 @@ public class Balloon extends Sprite {
 
 		for (int i = 0; i < 2; i++)
 			frames[i] = splited[i][0];
-		animation = new Animation(MathUtils.random(0.1f, 0.3f), frames);
+		animation = new Animation(0.15f, frames);
 	}
 
 	/**

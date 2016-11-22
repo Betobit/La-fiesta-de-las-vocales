@@ -19,6 +19,7 @@ import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import mx.betobit.fiestavocales.Constants;
 import mx.betobit.fiestavocales.FiestaDeLasVocales;
+import mx.betobit.fiestavocales.scenes.Hud;
 import mx.betobit.fiestavocales.sprites.Balloon;
 
 /**
@@ -27,6 +28,7 @@ import mx.betobit.fiestavocales.sprites.Balloon;
 public class PlayScreen extends BaseScreen {
 
 	private Sprite background;
+	private Hud hud;
 
 	// World
 	private int width;
@@ -80,6 +82,7 @@ public class PlayScreen extends BaseScreen {
 			balloons.add(b);
 			attachLightToBody(b.getBody(), b.getColor(), 90);
 		}
+		hud = new Hud(getViewport());
 	}
 
 	/**
@@ -115,6 +118,7 @@ public class PlayScreen extends BaseScreen {
 		background.draw(batch);
 		batch.end();
 
+		hud.update(delta);
 		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 		rayHandler.setCombinedMatrix(getCamera());
 		rayHandler.updateAndRender();
@@ -140,6 +144,7 @@ public class PlayScreen extends BaseScreen {
 		}
 
 		if(newBalloon) {
+			Hud.addScore(20);
 			addBalloon();
 			newBalloon = false;
 		}
