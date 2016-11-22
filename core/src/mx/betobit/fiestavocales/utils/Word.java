@@ -27,4 +27,8 @@ public class Word {
 	public boolean isHiatus() {
 		return isHiatus;
 	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
 }

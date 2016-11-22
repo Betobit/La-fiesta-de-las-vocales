@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -67,6 +68,7 @@ public class Balloon extends Sprite {
 		// Center sprite in body
 		setX(body.getPosition().x - 25);
 		setY(body.getPosition().y - 95);
+		setBounds(getX(), getY(), 50, 50);
 
 		batch.begin();
 		batch.draw(frame, getX(), getY(), 50, 120);
@@ -101,7 +103,6 @@ public class Balloon extends Sprite {
 	 */
 	private void defineSpriteSheet() {
 		String color = getColor().toString();
-		String purple = Color.SCARLET.toString();
 
 		if(color.contains(Constants.SCARLET.substring(0,6)))
 			spriteSheet = new Texture("balloons_pink.png");
@@ -126,7 +127,30 @@ public class Balloon extends Sprite {
 		return body;
 	}
 
+	/**
+	 * Get sprite
+	 * @return
+	 */
 	public Texture getSpriteSheet() {
 		return spriteSheet;
+	}
+
+	/**
+	 * Detect tap or click on body
+	 */
+	public void onTap(OnTapListener listener) {
+		if(Gdx.input.isTouched()) {
+			int x1 = Gdx.input.getX();
+			int y1 = Gdx.input.getY() + 60;
+			Vector3 input = new Vector3(x1, y1, 0);
+			screen.getCamera().unproject(input);
+			if (getBoundingRectangle().contains(input.x, input.y)) {
+				listener.onTap();
+			}
+		}
+	}
+
+	public interface OnTapListener {
+		void onTap();
 	}
 }

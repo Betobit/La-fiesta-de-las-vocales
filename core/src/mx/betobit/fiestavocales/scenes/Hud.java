@@ -49,9 +49,23 @@ public class Hud {
 		stage.addActor(table);
 	}
 
-	public static void addScore(int value){
+	// TODO: Refactor similar methods
+	/**
+	 * Add the given score to the player 1
+	 * @param value points
+	 */
+	public static void addScore1(int value){
 		score += value;
 		scoreLabel.setText(String.format("Tú: %04d ", score));
+	}
+
+	/**
+	 * Add the given score to the player 2
+	 * @param value points
+	 */
+	public static void addScore2(int value){
+		score2 += value;
+		scoreLabel2.setText(String.format("Oponente: %04d ", score2));
 	}
 
 	/**

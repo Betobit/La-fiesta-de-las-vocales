@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -75,7 +76,7 @@ public class PlayScreen extends BaseScreen {
 		rayHandler.setAmbientLight(0.7f);
 
 		newBalloon = false;
-		for(int i = 0; i < 8; i++) {
+		for(int i = 0; i < 15; i++) {
 			Balloon b = new Balloon(this,
 					MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET,
 					MathUtils.random(0, width), MathUtils.random(0, height));
@@ -129,10 +130,11 @@ public class PlayScreen extends BaseScreen {
 		}
 
 		// Render balloon and destroy it when is out of the screen.
-		ListIterator iterator = lights.listIterator();
+		// TODO: Refactor this copy/paste
+		final ListIterator iterator = lights.listIterator();
 		while (iterator.hasNext()) {
-			Balloon b = balloons.get(iterator.nextIndex());
-			Light l = (Light)iterator.next();
+			final Balloon b = balloons.get(iterator.nextIndex());
+			final Light l = (Light)iterator.next();
 
 			if (b.getY() > height - 20) {
 				world.destroyBody(b.getBody()); // Remove body from world
@@ -142,10 +144,19 @@ public class PlayScreen extends BaseScreen {
 				newBalloon = true;
 			}
 			b.update(delta);
+			b.onTap(new Balloon.OnTapListener() {
+				@Override
+				public void onTap() {
+					world.destroyBody(b.getBody()); // Remove body from world
+					balloons.remove(b); // Remove balloon from list
+					l.remove(); // Remove light from world
+					iterator.remove(); // Remove light from list
+					newBalloon = true;
+				}
+			});
 		}
 
 		if(newBalloon) {
-			Hud.addScore(20);
 			addBalloon();
 			newBalloon = false;
 		}
@@ -159,6 +170,10 @@ public class PlayScreen extends BaseScreen {
 			b.getSpriteSheet().dispose();
 	}
 
+	/**
+	 * Get world of the screen
+	 * @return
+	 */
 	public World getWorld() {
 		return world;
 	}
