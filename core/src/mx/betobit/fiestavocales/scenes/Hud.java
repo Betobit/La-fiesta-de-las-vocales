@@ -41,7 +41,7 @@ public class Hud {
 		BitmapFont customFont = new BitmapFont(Gdx.files.internal("font/font.fnt"));
 		scoreLabel = new Label(String.format("Tú: %04d ", score),
 				new Label.LabelStyle(customFont, Color.WHITE));
-		scoreLabel2 = new Label(String.format("Oponente: %04d ", score),
+		scoreLabel2 = new Label(String.format("Oponente: %04d ", score2),
 				new Label.LabelStyle(customFont, Color.WHITE));
 		table.left().pad(PADDING).add(scoreLabel).expandX();
 		table.add(scoreLabel2).expandX();

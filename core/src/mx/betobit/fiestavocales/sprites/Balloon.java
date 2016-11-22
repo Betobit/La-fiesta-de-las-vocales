@@ -1,8 +1,10 @@
 package mx.betobit.fiestavocales.sprites;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -14,6 +16,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
 import mx.betobit.fiestavocales.screens.PlayScreen;
+import mx.betobit.fiestavocales.utils.Constants;
+import mx.betobit.fiestavocales.utils.Word;
+import mx.betobit.fiestavocales.utils.WordGenerator;
 
 /**
  * Created by jesusmartinez on 21/11/16.
@@ -31,11 +36,19 @@ public class Balloon extends Sprite {
 	private Animation animation;
 	private Body body;
 
+	private Word word;
+	private BitmapFont customFont;
+
 	public Balloon(PlayScreen playScreen, Color color, float x, float y) {
 		duration = 0;
 		this.screen = playScreen;
+		this.word = WordGenerator.getWord();
 		this.world = screen.getWorld();
 		this.batch = screen.getGame().getBatch();
+
+		customFont = new BitmapFont(Gdx.files.internal("font/regular.fnt"));
+		customFont.getData().setScale(0.85f);
+		customFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
 		setColor(color);
 		setPosition(x, y);
@@ -57,6 +70,9 @@ public class Balloon extends Sprite {
 
 		batch.begin();
 		batch.draw(frame, getX(), getY(), 50, 120);
+		customFont.draw(batch, word.getLabel(),
+				getX() + 25 - word.getLabel().length()/2*12,
+				getY() + 70);
 		batch.end();
 	}
 	/**
@@ -77,7 +93,7 @@ public class Balloon extends Sprite {
 		fdef.restitution = 0f;
 		body.createFixture(fdef);
 
-		body.setLinearVelocity(MathUtils.random(-10, 10), MathUtils.random(0, 20) );
+		body.setLinearVelocity(MathUtils.random(-5, 5), MathUtils.random(0, 20) );
 	}
 
 	/**
@@ -85,9 +101,9 @@ public class Balloon extends Sprite {
 	 */
 	private void defineSpriteSheet() {
 		String color = getColor().toString();
-		String scarlet = Color.SCARLET.toString();
+		String purple = Color.SCARLET.toString();
 
-		if(color.contains(scarlet.substring(0,5)))
+		if(color.contains(Constants.SCARLET.substring(0,6)))
 			spriteSheet = new Texture("balloons_pink.png");
 		else
 			spriteSheet = new Texture("balloons_green.png");

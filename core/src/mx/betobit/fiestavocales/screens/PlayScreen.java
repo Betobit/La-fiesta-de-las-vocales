@@ -17,10 +17,11 @@ import java.util.ListIterator;
 import box2dLight.Light;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
-import mx.betobit.fiestavocales.Constants;
+import mx.betobit.fiestavocales.utils.Constants;
 import mx.betobit.fiestavocales.FiestaDeLasVocales;
 import mx.betobit.fiestavocales.scenes.Hud;
 import mx.betobit.fiestavocales.sprites.Balloon;
+import mx.betobit.fiestavocales.utils.WordGenerator;
 
 /**
  * Created by jesusmartinez on 31/10/16.
@@ -74,7 +75,7 @@ public class PlayScreen extends BaseScreen {
 		rayHandler.setAmbientLight(0.7f);
 
 		newBalloon = false;
-		for(int i = 0; i < 15; i++) {
+		for(int i = 0; i < 8; i++) {
 			Balloon b = new Balloon(this,
 					MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET,
 					MathUtils.random(0, width), MathUtils.random(0, height));
@@ -90,8 +91,8 @@ public class PlayScreen extends BaseScreen {
 	 */
 	private void addBalloon() {
 		Balloon b = new Balloon(this,
-				MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET,
-				MathUtils.random(0, width), -30);
+				MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET, // Color
+				MathUtils.random(0, width), -50); // Position
 
 		balloons.add(b);
 		attachLightToBody(b.getBody(), b.getColor(), 90);
@@ -133,7 +134,7 @@ public class PlayScreen extends BaseScreen {
 			Balloon b = balloons.get(iterator.nextIndex());
 			Light l = (Light)iterator.next();
 
-			if (b.getY() > height) {
+			if (b.getY() > height - 20) {
 				world.destroyBody(b.getBody()); // Remove body from world
 				balloons.remove(b); // Remove balloon from list
 				l.remove(); // Remove light from world
