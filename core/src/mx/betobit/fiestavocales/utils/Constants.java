@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Color;
  */
 
 public class Constants {
-	public static final boolean DEBUGGING = true;
+	public static final boolean DEBUGGING = false;
 	public static final String SCARLET = Color.SCARLET.toString();
 	public static final String CYAN = Color.CYAN.toString();
 }

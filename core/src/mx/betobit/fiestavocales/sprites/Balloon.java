@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -68,7 +69,7 @@ public class Balloon extends Sprite {
 		// Center sprite in body
 		setX(body.getPosition().x - 25);
 		setY(body.getPosition().y - 95);
-		setBounds(getX(), getY(), 50, 50);
+		setBounds(getX(), getY(), 60, 80);
 
 		batch.begin();
 		batch.draw(frame, getX(), getY(), 50, 120);
@@ -76,7 +77,10 @@ public class Balloon extends Sprite {
 				getX() + 25 - word.getLabel().length()/2*12,
 				getY() + 70);
 		batch.end();
+
+
 	}
+
 	/**
 	 * Define box2d body for the balloon.
 	 */
@@ -111,12 +115,12 @@ public class Balloon extends Sprite {
 		else
 			spriteSheet = new Texture("balloons_green.png");
 
-		textureRegion = new TextureRegion(spriteSheet, 114, 915);
+		textureRegion = new TextureRegion(spriteSheet, 57, 458);
 
-		TextureRegion[][] splited = textureRegion.split(114, 305);
-		TextureRegion[] frames = new TextureRegion[2];
+		TextureRegion[][] splited = textureRegion.split(57, 152);
+		TextureRegion[] frames = new TextureRegion[3];
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 			frames[i] = splited[i][0];
 		animation = new Animation(0.15f, frames);
 	}
@@ -138,11 +142,11 @@ public class Balloon extends Sprite {
 	}
 
 	/**
-	 * Detect tap or click on body
+	 * Detect tap or click in sprite custom bounds
 	 */
 	public void onTap(OnTapListener listener) {
-		if(Gdx.input.isTouched()) {
-			int x1 = Gdx.input.getX();
+		if(Gdx.input.justTouched()) {
+			int x1 = Gdx.input.getX() - 5;
 			int y1 = Gdx.input.getY() + 60;
 			Vector3 input = new Vector3(x1, y1, 0);
 			screen.getCamera().unproject(input);
