@@ -106,6 +106,8 @@ public class Balloon extends Sprite {
 
 		if(color.contains(Constants.SCARLET.substring(0,6)))
 			spriteSheet = new Texture("balloons_pink.png");
+		else if(color.contains(Constants.CYAN.substring(0,6)))
+			spriteSheet = new Texture("balloons_blue.png");
 		else
 			spriteSheet = new Texture("balloons_green.png");
 

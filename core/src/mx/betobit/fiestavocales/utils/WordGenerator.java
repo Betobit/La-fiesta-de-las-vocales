@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.MathUtils;
 public class WordGenerator {
 
 	private static final Word[] WORDS = {
-		new Word("Hiato", false, true),
 		new Word("Aula", false, true),
 		new Word("Virtual", false, true),
 		new Word("Bolillo", false, true),

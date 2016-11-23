@@ -1,6 +1,7 @@
 package mx.betobit.fiestavocales.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -22,6 +23,7 @@ import mx.betobit.fiestavocales.utils.Constants;
 import mx.betobit.fiestavocales.FiestaDeLasVocales;
 import mx.betobit.fiestavocales.scenes.Hud;
 import mx.betobit.fiestavocales.sprites.Balloon;
+import mx.betobit.fiestavocales.utils.Tools;
 import mx.betobit.fiestavocales.utils.WordGenerator;
 
 /**
@@ -29,6 +31,7 @@ import mx.betobit.fiestavocales.utils.WordGenerator;
  */
 public class PlayScreen extends BaseScreen {
 
+	// UI
 	private Sprite background;
 	private Hud hud;
 
@@ -45,7 +48,9 @@ public class PlayScreen extends BaseScreen {
 
 	// Debugging
 	private Box2DDebugRenderer b2dr;
-	private ShapeRenderer shapeRenderer;
+
+	// Others
+	private Sound popSound;
 
 	/**
 	 * Constructor
@@ -58,7 +63,7 @@ public class PlayScreen extends BaseScreen {
 		balloons = new ArrayList<Balloon>();
 		lights = new ArrayList<Light>();
 		b2dr = new Box2DDebugRenderer();
-		shapeRenderer = new ShapeRenderer();
+		popSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pop.mp3"));
 	}
 
 	/**
@@ -78,7 +83,7 @@ public class PlayScreen extends BaseScreen {
 		newBalloon = false;
 		for(int i = 0; i < 15; i++) {
 			Balloon b = new Balloon(this,
-					MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET,
+					Tools.getRandomColor(),
 					MathUtils.random(0, width), MathUtils.random(0, height));
 
 			balloons.add(b);
@@ -87,19 +92,20 @@ public class PlayScreen extends BaseScreen {
 		hud = new Hud(getViewport());
 	}
 
+
 	/**
 	 * Add balloon with light.
 	 */
 	private void addBalloon() {
 		Balloon b = new Balloon(this,
-				MathUtils.randomBoolean() ? Color.CYAN : Color.SCARLET, // Color
+				Tools.getRandomColor(),
 				MathUtils.random(0, width), -50); // Position
 
 		balloons.add(b);
 		attachLightToBody(b.getBody(), b.getColor(), 90);
 	}
 
-	/**
+	/**a
 	 * Attach a Point light to the given body.
 	 *
 	 * @param body     The body to attach the light.
@@ -137,21 +143,16 @@ public class PlayScreen extends BaseScreen {
 			final Light l = (Light)iterator.next();
 
 			if (b.getY() > height - 20) {
-				world.destroyBody(b.getBody()); // Remove body from world
-				balloons.remove(b); // Remove balloon from list
-				l.remove(); // Remove light from world
-				iterator.remove(); // Remove light from list
-				newBalloon = true;
+				deleteBallon(b, l);
+				iterator.remove();
 			}
 			b.update(delta);
 			b.onTap(new Balloon.OnTapListener() {
 				@Override
 				public void onTap() {
-					world.destroyBody(b.getBody()); // Remove body from world
-					balloons.remove(b); // Remove balloon from list
-					l.remove(); // Remove light from world
-					iterator.remove(); // Remove light from list
-					newBalloon = true;
+					popSound.play(0.5f);
+					deleteBallon(b, l);
+					iterator.remove();
 				}
 			});
 		}
@@ -160,6 +161,18 @@ public class PlayScreen extends BaseScreen {
 			addBalloon();
 			newBalloon = false;
 		}
+	}
+
+	/**
+	 * Delete body and light from world. Set flag newBalloon to true.
+	 * @param balloon
+	 * @param light
+	 */
+	private void deleteBallon(Balloon balloon, Light light) {
+		world.destroyBody(balloon.getBody()); // Remove body from world
+		balloons.remove(balloon); // Remove balloon from list
+		light.remove(); // Remove light from world
+		newBalloon = true;
 	}
 
 	@Override
