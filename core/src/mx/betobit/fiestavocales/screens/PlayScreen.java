@@ -60,7 +60,7 @@ public class PlayScreen extends BaseScreen {
 	// Others
 	private Sound popSound;
 	private Socket socket;
-	private String id;
+	private String playerId;
 
 	/**
 	 * Constructor
@@ -103,6 +103,7 @@ public class PlayScreen extends BaseScreen {
 			balloons.add(b);
 			attachLightToBody(b.getBody(), b.getColor(), 90);
 		}
+
 		hud = new Hud(getViewport());
 	}
 
@@ -117,6 +118,18 @@ public class PlayScreen extends BaseScreen {
 
 		balloons.add(b);
 		attachLightToBody(b.getBody(), b.getColor(), 90);
+
+		// Sending an object
+		/*try {
+			JSONObject json = new JSONObject();
+			json.put("color", b.getColor().toString());
+			json.put("x", b.getX());
+			json.put("y", b.getY());
+			socket.emit("newBalloon", json);
+		} catch (JSONException e) {
+			Gdx.app.log("Error", "Error creating bew balloon json");
+		}*/
+
 	}
 
 	/**a
@@ -158,6 +171,17 @@ public class PlayScreen extends BaseScreen {
 		}
 	}
 
+	private void sendNewScore() {
+		JSONObject json = new JSONObject();
+		try {
+			json.put("id", playerId);
+			json.put("score", hud.getScore());
+			socket.emit("balloonTouched", json);
+		} catch (JSONException e) {
+			Gdx.app.log("Error", "Error sending new score");
+		}
+	}
+
 	/**
 	 * Render balloon and destroy it when is out of the screen.
 	 * Iterate over the lights.
@@ -171,7 +195,7 @@ public class PlayScreen extends BaseScreen {
 			final Light l = (Light)iterator.next();
 
 			if (b.getY() > height - 20) {
-				deleteBallon(b, l);
+				deleteBalloon(b, l);
 				iterator.remove();
 			}
 			b.update(delta);
@@ -179,8 +203,9 @@ public class PlayScreen extends BaseScreen {
 				@Override
 				public void onTap() {
 					popSound.play(0.5f);
-					Hud.addScore1(20);
-					deleteBallon(b, l);
+					hud.addScore1(20);
+					sendNewScore();
+					deleteBalloon(b, l);
 					iterator.remove();
 				}
 			});
@@ -200,7 +225,7 @@ public class PlayScreen extends BaseScreen {
 	 * @param balloon
 	 * @param light
 	 */
-	private void deleteBallon(Balloon balloon, Light light) {
+	private void deleteBalloon(Balloon balloon, Light light) {
 		world.destroyBody(balloon.getBody()); // Remove body from world
 		balloons.remove(balloon); // Remove balloon from list
 		light.remove(); // Remove light from world
@@ -224,7 +249,7 @@ public class PlayScreen extends BaseScreen {
 	}
 
 	/**
-	 * Connect to socket
+	 * Connect to server
 	 */
 	public void connectSocket(){
 		try {
@@ -236,7 +261,7 @@ public class PlayScreen extends BaseScreen {
 	}
 
 	/**
-	 * Socket magic
+	 * Socket communication
 	 */
 	public void configSocketEvents(){
 		socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
@@ -244,15 +269,15 @@ public class PlayScreen extends BaseScreen {
 			public void call(Object... args) {
 				Gdx.app.log("SocketIO", "Connected");
 			}
-		}).on("socketID", new Emitter.Listener() {
+		}).on("socketId", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
 				try {
-					id = data.getString("id");
-					Gdx.app.log("SocketIO", "My ID: " + id);
+					playerId = data.getString("id");
+					Gdx.app.log("SocketIO", "Player id: " + playerId);
 				} catch (JSONException e) {
-					Gdx.app.log("SocketIO", "Error getting ID");
+					Gdx.app.log("SocketIO", "Error getting id");
 				}
 			}
 		}).on("newPlayer", new Emitter.Listener() {
@@ -260,33 +285,68 @@ public class PlayScreen extends BaseScreen {
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
 				try {
-					id = data.getString("id");
-					Gdx.app.log("SocketIO", "New Player Connect: " + id);
+					String id = data.getString("id");
+					Gdx.app.log("SocketIO", "New player connect: " + id);
 				} catch (JSONException e) {
-					Gdx.app.log("SocketIO", "Error getting New PlayerID");
+					Gdx.app.log("SocketIO", "Error getting new playerId");
 				}
 			}
 		}).on("playerDisconnected", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
+				hud.setScore2(0);
+			}
+		}).on("balloonTouched", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				JSONObject player = (JSONObject) args[0];
+
+				try {
+					if(playerId == player.getString("id"))
+						hud.setScore(player.getInt("score"));
+					else
+						hud.setScore2(player.getInt("score"));
+				} catch (JSONException e) {
+
+				}
 			}
 		}).on("getPlayers", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
-				/*JSONArray objects = (JSONArray) args[0];
+				JSONArray jsonPlayers = (JSONArray) args[0];
+				Gdx.app.log("SocketIO", jsonPlayers.toString());
 				try {
-					for (int i = 0; i < objects.length(); i++) {
-						Starship coopPlayer = new Starship(friendlyShip);
-						Vector2 position = new Vector2();
-						position.x = ((Double) objects.getJSONObject(i).getDouble("x")).floatValue();
-						position.y = ((Double) objects.getJSONObject(i).getDouble("y")).floatValue();
-						coopPlayer.setPosition(position.x, position.y);
-
-						friendlyPlayers.put(objects.getJSONObject(i).getString("id"), coopPlayer);
+					for(int i = 0; i < jsonPlayers.length(); i++) {
+						JSONObject player = jsonPlayers.getJSONObject(i);
+						if(playerId == player.getString("id"))
+							hud.setScore(player.getInt("score"));
+						else
+							hud.setScore2(player.getInt("score"));
 					}
 				} catch (JSONException e) {
 
-				}*/
+				}
+			}
+		})
+		.on("getBalloons", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				JSONArray jsonBalloons = (JSONArray) args[0];
+				try {
+					for(int i = 0; i < jsonBalloons.length(); i++) {
+						JSONObject jsonBalloon = jsonBalloons.getJSONObject(i);
+						Vector2 position = new Vector2();
+						position.x = ((Double) jsonBalloon.getDouble("x")).floatValue();
+						position.y = ((Double) jsonBalloon.getDouble("y")).floatValue();
+
+						Balloon b = new Balloon(PlayScreen.this,
+								Color.valueOf(jsonBalloon.getString("color")),
+								position.x, position.y); // Position
+						balloons.add(b);
+					}
+				} catch (JSONException e) {
+
+				}
 			}
 		});
 	}

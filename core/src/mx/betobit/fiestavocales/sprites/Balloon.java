@@ -58,6 +58,8 @@ public class Balloon extends Sprite {
 		defineSpriteSheet();
 	}
 
+
+
 	/**
 	 * Get the frame of the animation and draw it.
 	 * @param delta Delta time
@@ -77,8 +79,6 @@ public class Balloon extends Sprite {
 				getX() + 25 - word.getLabel().length()/2*12,
 				getY() + 70);
 		batch.end();
-
-
 	}
 
 	/**

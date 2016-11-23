@@ -21,10 +21,10 @@ public class Hud {
 	private Table table;
 
 	private static Label scoreLabel;
-	private static int score;
+	private int score;
 
 	private static Label scoreLabel2;
-	private static int score2;
+	private int score2;
 
 	/**
 	 * Constructor
@@ -54,7 +54,7 @@ public class Hud {
 	 * Add the given score to the player 1
 	 * @param value points
 	 */
-	public static void addScore1(int value){
+	public void addScore1(int value){
 		score += value;
 		scoreLabel.setText(String.format("Tú: %04d ", score));
 	}
@@ -63,7 +63,7 @@ public class Hud {
 	 * Add the given score to the player 2
 	 * @param value points
 	 */
-	public static void addScore2(int value){
+	public void addScore2(int value){
 		score2 += value;
 		scoreLabel2.setText(String.format("Oponente: %04d ", score2));
 	}
@@ -75,4 +75,29 @@ public class Hud {
 		stage.draw();
 	}
 
+	/**
+	 * Get score player 1
+	 * @return
+	 */
+	public int getScore() {
+		return score;
+	}
+
+	/**
+	 * Get score player 2
+	 * @return
+	 */
+	public int getScore2() {
+		return score2;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+		scoreLabel.setText(String.format("Tú: %04d ", score));
+	}
+
+	public void setScore2(int score2) {
+		this.score2 = score2;
+		scoreLabel2.setText(String.format("Oponente: %04d ", score2));
+	}
 }
