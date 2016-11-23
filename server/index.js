@@ -3,7 +3,6 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var players = [];
-var balloons = [];
 
 // Run localhost on port 8080
 server.listen(8080, function() {
@@ -15,22 +14,16 @@ server.listen(8080, function() {
 ******************************/
 io.on('connection', function(socket) {
 	console.log("Player Connected!");
+
 	// Emitters
 	socket.emit('socketId', { id: socket.id });
-	//socket.emit('getBalloons', balloons);
 	socket.emit('getPlayers', players);
-	socket.broadcast.emit('newPlayer', { id: socket.id });
 
 	// Receivers
 	socket.on('disconnect', function(){
 		console.log("Player disconnected");
 		socket.broadcast.emit('playerDisconnected', { id: socket.id });
-
-		for(var i = 0; i < players.length; i++){
-			if(players[i].id == socket.id){
-				players.splice(i, 1);
-			}
-		}
+		players = [];
 	});
 
 	/*socket.on('newBalloon', function (data) {
@@ -56,12 +49,6 @@ io.on('connection', function(socket) {
 /******************************
 	      M O D E L
 ******************************/
-function Balloon(color, x, y) {
-	this.color = "#" + color;
-	this.x = x;
-	this.y = y;
-}
-
 function Player(id, score) {
 	this.id = id;
 	this.score = score;

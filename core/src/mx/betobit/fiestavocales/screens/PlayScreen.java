@@ -280,17 +280,6 @@ public class PlayScreen extends BaseScreen {
 					Gdx.app.log("SocketIO", "Error getting id");
 				}
 			}
-		}).on("newPlayer", new Emitter.Listener() {
-			@Override
-			public void call(Object... args) {
-				JSONObject data = (JSONObject) args[0];
-				try {
-					String id = data.getString("id");
-					Gdx.app.log("SocketIO", "New player connect: " + id);
-				} catch (JSONException e) {
-					Gdx.app.log("SocketIO", "Error getting new playerId");
-				}
-			}
 		}).on("playerDisconnected", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
@@ -314,7 +303,6 @@ public class PlayScreen extends BaseScreen {
 			@Override
 			public void call(Object... args) {
 				JSONArray jsonPlayers = (JSONArray) args[0];
-				Gdx.app.log("SocketIO", jsonPlayers.toString());
 				try {
 					for(int i = 0; i < jsonPlayers.length(); i++) {
 						JSONObject player = jsonPlayers.getJSONObject(i);
@@ -322,27 +310,6 @@ public class PlayScreen extends BaseScreen {
 							hud.setScore(player.getInt("score"));
 						else
 							hud.setScore2(player.getInt("score"));
-					}
-				} catch (JSONException e) {
-
-				}
-			}
-		})
-		.on("getBalloons", new Emitter.Listener() {
-			@Override
-			public void call(Object... args) {
-				JSONArray jsonBalloons = (JSONArray) args[0];
-				try {
-					for(int i = 0; i < jsonBalloons.length(); i++) {
-						JSONObject jsonBalloon = jsonBalloons.getJSONObject(i);
-						Vector2 position = new Vector2();
-						position.x = ((Double) jsonBalloon.getDouble("x")).floatValue();
-						position.y = ((Double) jsonBalloon.getDouble("y")).floatValue();
-
-						Balloon b = new Balloon(PlayScreen.this,
-								Color.valueOf(jsonBalloon.getString("color")),
-								position.x, position.y); // Position
-						balloons.add(b);
 					}
 				} catch (JSONException e) {
 
