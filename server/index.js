@@ -19,17 +19,11 @@ io.on('connection', function(socket) {
 	socket.emit('socketId', { id: socket.id });
 	socket.emit('getPlayers', players);
 
-	// Receivers
 	socket.on('disconnect', function(){
 		console.log("Player disconnected");
 		socket.broadcast.emit('playerDisconnected', { id: socket.id });
 		players = [];
 	});
-
-	/*socket.on('newBalloon', function (data) {
-		console.log("New balloon! " + JSON.stringify(data));
-		balloons.push(new Balloon(data.color, data.x, data.y));
-	});*/
 
 	socket.on('balloonTouched', function (data) {
 		data.id = socket.id;

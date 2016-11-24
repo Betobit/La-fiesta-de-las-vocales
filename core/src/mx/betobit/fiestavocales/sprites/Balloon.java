@@ -26,47 +26,36 @@ import mx.betobit.fiestavocales.utils.WordGenerator;
  * Created by jesusmartinez on 21/11/16.
  */
 
-public class Balloon extends Sprite {
+public class Balloon extends SpriteAnimation {
 
 	private World world;
-	private PlayScreen screen;
-	private SpriteBatch batch;
-
-	private float duration;
-	private Texture spriteSheet;
-	private TextureRegion textureRegion;
-	private Animation animation;
 	private Body body;
 
 	private Word word;
 	private BitmapFont customFont;
 
 	public Balloon(PlayScreen playScreen, Color color, float x, float y) {
-		duration = 0;
-		this.screen = playScreen;
+		super(playScreen, 50, 120, x, y);
 		this.word = WordGenerator.getWord();
-		this.world = screen.getWorld();
-		this.batch = screen.getGame().getBatch();
+		this.world = playScreen.getWorld();
+		this.batch = playScreen.getGame().getBatch();
 
 		customFont = new BitmapFont(Gdx.files.internal("font/regular.fnt"));
 		customFont.getData().setScale(0.85f);
 		customFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
 		setColor(color);
-		setPosition(x, y);
 		defineBox2dBody();
 		defineSpriteSheet();
 	}
 
 
-
 	/**
-	 * Get the frame of the animation and draw it.
+	 * Get the frame of the animation and draw it. Also draw the word label and set bounds
 	 * @param delta Delta time
 	 */
 	public void update(float delta) {
-		duration += delta;
-		TextureRegion frame = animation.getKeyFrame(duration, true);
+		TextureRegion frame = getAnimation().getKeyFrame(duration, true);
 
 		// Center sprite in body
 		setX(body.getPosition().x - 25);
@@ -105,24 +94,24 @@ public class Balloon extends Sprite {
 	/**
 	 * Get the sprite sheet of the balloon, split it and create the animation.
 	 */
-	private void defineSpriteSheet() {
+	protected void defineSpriteSheet() {
 		String color = getColor().toString();
 
 		if(color.contains(Constants.SCARLET.substring(0,6)))
-			spriteSheet = new Texture("balloons_pink.png");
+			setSpriteSheet(new Texture("balloons_pink.png"));
 		else if(color.contains(Constants.CYAN.substring(0,6)))
-			spriteSheet = new Texture("balloons_blue.png");
+			setSpriteSheet(new Texture("balloons_blue.png"));
 		else
-			spriteSheet = new Texture("balloons_green.png");
+			setSpriteSheet(new Texture("balloons_green.png"));
 
-		textureRegion = new TextureRegion(spriteSheet, 57, 458);
+		setTextureRegion(new TextureRegion(getSpriteSheet(), 57, 458));
 
-		TextureRegion[][] splited = textureRegion.split(57, 152);
+		TextureRegion[][] splited = getTextureRegion().split(57, 152);
 		TextureRegion[] frames = new TextureRegion[3];
 
 		for (int i = 0; i < 3; i++)
 			frames[i] = splited[i][0];
-		animation = new Animation(0.15f, frames);
+		setAnimation(new Animation(0.15f, frames));
 	}
 
 	/**
@@ -134,14 +123,6 @@ public class Balloon extends Sprite {
 	}
 
 	/**
-	 * Get sprite
-	 * @return
-	 */
-	public Texture getSpriteSheet() {
-		return spriteSheet;
-	}
-
-	/**
 	 * Detect tap or click in sprite custom bounds
 	 */
 	public void onTap(OnTapListener listener) {
@@ -149,7 +130,7 @@ public class Balloon extends Sprite {
 			int x1 = Gdx.input.getX() - 5;
 			int y1 = Gdx.input.getY() + 60;
 			Vector3 input = new Vector3(x1, y1, 0);
-			screen.getCamera().unproject(input);
+			getScreen().getCamera().unproject(input);
 			if (getBoundingRectangle().contains(input.x, input.y)) {
 				listener.onTap();
 			}

@@ -26,6 +26,7 @@ import box2dLight.RayHandler;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import mx.betobit.fiestavocales.sprites.Loader;
 import mx.betobit.fiestavocales.utils.Constants;
 import mx.betobit.fiestavocales.FiestaDeLasVocales;
 import mx.betobit.fiestavocales.scenes.Hud;
@@ -41,6 +42,7 @@ public class PlayScreen extends BaseScreen {
 	// UI
 	private Sprite background;
 	private Hud hud;
+	private Loader loader;
 
 	// World
 	private int width;
@@ -105,6 +107,7 @@ public class PlayScreen extends BaseScreen {
 		}
 
 		hud = new Hud(getViewport());
+		loader = new Loader(this, 120, 120, width/2, height/2);
 	}
 
 
@@ -157,6 +160,8 @@ public class PlayScreen extends BaseScreen {
 		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 		rayHandler.setCombinedMatrix(getCamera());
 		rayHandler.updateAndRender();
+
+		loader.update(delta);
 
 		if (Constants.DEBUGGING) {
 			b2dr.render(world, getCamera().combined);
