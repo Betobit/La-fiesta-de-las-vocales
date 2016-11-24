@@ -3,10 +3,10 @@ package mx.betobit.fiestavocales.scenes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
@@ -26,6 +26,11 @@ public class Hud {
 
 	private ArrayList<Score> scores;
 
+	// Timer
+	private int time;
+	private float timeCounter;
+	private Label timeLabel;
+
 	/**
 	 * Constructor
 	 * @param viewport
@@ -35,22 +40,40 @@ public class Hud {
 		table = new Table();
 		table.top();
 		table.setFillParent(true);
+		time = 60;
+		timeCounter = 0f;
+
+		BitmapFont customFont = new BitmapFont(Gdx.files.internal("font/font.fnt"));
+		timeLabel = new Label(String.format("%02d ", time),
+				new Label.LabelStyle(customFont, Color.WHITE));
 
 		scores = new ArrayList<Score>();
 		scores.add(new Score("Tú"));
 		scores.add(new Score("Oponente"));
 
-		table.left().pad(PADDING).add(scores.get(0).getLabel()).expandX();
-		table.add(scores.get(1).getLabel()).expandX();
+		table.add(scores.get(0).getLabel())
+				.uniformX().align(Align.center);
+		table.pad(PADDING).add(timeLabel)
+				.uniformX().align(Align.center);
+		table.pad(PADDING).add(scores.get(1).getLabel())
+				.uniformX().align(Align.center);
 
 		stage.addActor(table);
 	}
-
 
 	/**
 	 * Update timeCount and score.
 	 */
 	public void update(float dt){
+		timeCounter += dt;
+		if(timeCounter >= 1){
+			if (time > 0) {
+				time--;
+			}
+			timeLabel.setText(String.format("%02d", time));
+			timeCounter  = -1;
+		}
+
 		scores.get(0).update(dt);
 		scores.get(1).update(dt);
 		stage.draw();
@@ -58,6 +81,14 @@ public class Hud {
 
 	public Score getScore(int index) {
 		return scores.get(index);
+	}
+
+	/**
+	 * Get time
+	 * @return
+	 */
+	public int getTime() {
+		return time;
 	}
 /*
 	public void setScore(int score) {

@@ -1,0 +1,33 @@
+menu.png
+size: 1024, 96
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1_player
+  rotate: false
+  xy: 0, 0
+  size: 256, 96
+  orig: 256, 96
+  offset: 0, 0
+  index: -1
+1_player_hover
+  rotate: false
+  xy: 256, 0
+  size: 256, 96
+  orig: 256, 96
+  offset: 0, 0
+  index: -1
+2_players
+  rotate: false
+  xy: 512, 0
+  size: 256, 96
+  orig: 256, 96
+  offset: 0, 0
+  index: -1
+2_players_hover
+  rotate: false
+  xy: 768, 0
+  size: 256, 96
+  orig: 256, 96
+  offset: 0, 0
+  index: -1

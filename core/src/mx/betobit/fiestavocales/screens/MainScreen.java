@@ -36,7 +36,6 @@ public class MainScreen extends BaseScreen {
 		super(game, 800, 480);
 		width = getWidth();
 		height= getHeight();
-
 	}
 
 	@Override
@@ -62,7 +61,6 @@ public class MainScreen extends BaseScreen {
 	private Table setMenuTable() {
 		Table table = new Table();
 		TextureAtlas atlas = new TextureAtlas("menu/atlas.txt");
-
 		Skin skinButtons = new Skin(atlas);
 
 		// Set big buttons
@@ -100,7 +98,7 @@ public class MainScreen extends BaseScreen {
 		home.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				getGame().setScreen(new PlayScreen(getGame()));
+				getGame().setScreen(new PlayersScreen(getGame()));
 			}
 		});
 

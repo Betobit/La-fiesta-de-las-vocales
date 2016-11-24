@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +45,7 @@ public class PlayScreen extends BaseScreen {
 	private Sprite background;
 	private Hud hud;
 	private Loader loader;
+	private BitmapFont customFont;
 
 	// World
 	private int width;
@@ -64,21 +67,24 @@ public class PlayScreen extends BaseScreen {
 	private Socket socket;
 	private String playerId;
 	private char gameState;
+	private boolean multiplayer;
 
 	/**
 	 * Constructor
 	 */
-	public PlayScreen(FiestaDeLasVocales game) {
+	public PlayScreen(FiestaDeLasVocales game, boolean multiplayer) {
 		super(game, 800, 480);
 		width = getWidth();
 		height= getHeight();
+		this.multiplayer = multiplayer;
 
+		gameState = multiplayer ? 'w' : 'p';
 		balloons = new ArrayList<Balloon>();
 		lights = new ArrayList<Light>();
 		b2dr = new Box2DDebugRenderer();
 		shapeRenderer = new ShapeRenderer();
 		popSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pop.mp3"));
-		gameState = 'p'; // waiting
+		customFont = new BitmapFont(Gdx.files.internal("font/font.fnt"));
 
 		connectSocket();
 		configSocketEvents();
@@ -112,7 +118,6 @@ public class PlayScreen extends BaseScreen {
 		loader = new Loader(this, 120, 120, width/2, height/2);
 	}
 
-
 	/**
 	 * Add balloon with light.
 	 */
@@ -124,7 +129,7 @@ public class PlayScreen extends BaseScreen {
 		balloons.add(b);
 		attachLightToBody(b.getBody(), b.getColor(), 90);
 
-		// Sending an object
+		// Sending balloon to server
 		/*try {
 			JSONObject json = new JSONObject();
 			json.put("color", b.getColor().toString());
@@ -161,6 +166,9 @@ public class PlayScreen extends BaseScreen {
 		switch(gameState) {
 			case 'w' : // waiting
 				loader.update(delta);
+				batch.begin();
+				customFont.draw(batch, "Esperando segundo jugador...", width/2 - 170, height/2 - 80);
+				batch.end();
 				break;
 			case 'p': // play
 				hud.update(delta);
@@ -179,10 +187,17 @@ public class PlayScreen extends BaseScreen {
 					addBalloon();
 					newBalloon = false;
 				}
+
+				if(hud.getTime() <= 0) {
+					gameState = 'w';
+				}
 		}
 
 	}
 
+	/**
+	 * Send player score to server.
+	 */
 	private void sendNewScore() {
 		JSONObject json = new JSONObject();
 		try {
@@ -282,7 +297,6 @@ public class PlayScreen extends BaseScreen {
 		socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
-				Gdx.app.log("SocketIO", "Connected");
 			}
 		}).on("socketId", new Emitter.Listener() {
 			@Override
@@ -290,9 +304,8 @@ public class PlayScreen extends BaseScreen {
 				JSONObject data = (JSONObject) args[0];
 				try {
 					playerId = data.getString("id");
-					Gdx.app.log("SocketIO", "Player id: " + playerId);
 				} catch (JSONException e) {
-					Gdx.app.log("SocketIO", "Error getting id");
+					Gdx.app.log("SocketIO", "Error: " + e.getMessage());
 				}
 			}
 		}).on("playerDisconnected", new Emitter.Listener() {
