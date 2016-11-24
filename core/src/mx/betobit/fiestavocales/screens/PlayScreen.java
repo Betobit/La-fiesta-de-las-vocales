@@ -63,6 +63,7 @@ public class PlayScreen extends BaseScreen {
 	private Sound popSound;
 	private Socket socket;
 	private String playerId;
+	private char gameState;
 
 	/**
 	 * Constructor
@@ -77,6 +78,7 @@ public class PlayScreen extends BaseScreen {
 		b2dr = new Box2DDebugRenderer();
 		shapeRenderer = new ShapeRenderer();
 		popSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pop.mp3"));
+		gameState = 'p'; // waiting
 
 		connectSocket();
 		configSocketEvents();
@@ -156,31 +158,36 @@ public class PlayScreen extends BaseScreen {
 		background.draw(batch);
 		batch.end();
 
-		hud.update(delta);
-		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-		rayHandler.setCombinedMatrix(getCamera());
-		rayHandler.updateAndRender();
+		switch(gameState) {
+			case 'w' : // waiting
+				loader.update(delta);
+				break;
+			case 'p': // play
+				hud.update(delta);
+				world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+				rayHandler.setCombinedMatrix(getCamera());
+				rayHandler.updateAndRender();
 
-		loader.update(delta);
+				if (Constants.DEBUGGING) {
+					b2dr.render(world, getCamera().combined);
+				}
 
-		if (Constants.DEBUGGING) {
-			b2dr.render(world, getCamera().combined);
+				// Render balloons
+				renderBalloons(delta);
+
+				if(newBalloon) {
+					addBalloon();
+					newBalloon = false;
+				}
 		}
 
-		// Render balloons
-		renderBalloons(delta);
-
-		if(newBalloon) {
-			addBalloon();
-			newBalloon = false;
-		}
 	}
 
 	private void sendNewScore() {
 		JSONObject json = new JSONObject();
 		try {
 			json.put("id", playerId);
-			json.put("score", hud.getScore());
+			json.put("score", hud.getScore(0).getPoints());
 			socket.emit("balloonTouched", json);
 		} catch (JSONException e) {
 			Gdx.app.log("Error", "Error sending new score");
@@ -200,7 +207,7 @@ public class PlayScreen extends BaseScreen {
 			final Light l = (Light)iterator.next();
 
 			if (b.getY() > height - 20) {
-				deleteBalloon(b, l);
+				deleteBalloonFromWorld(b, l);
 				iterator.remove();
 			}
 			b.update(delta);
@@ -208,9 +215,12 @@ public class PlayScreen extends BaseScreen {
 				@Override
 				public void onTap() {
 					popSound.play(0.5f);
-					hud.addScore1(20);
+					if(b.getWord().isDiphthong())
+						hud.getScore(0).addPoints(20);
+					else
+						hud.getScore(0).addPoints(-20);
 					sendNewScore();
-					deleteBalloon(b, l);
+					deleteBalloonFromWorld(b, l);
 					iterator.remove();
 				}
 			});
@@ -230,7 +240,7 @@ public class PlayScreen extends BaseScreen {
 	 * @param balloon
 	 * @param light
 	 */
-	private void deleteBalloon(Balloon balloon, Light light) {
+	private void deleteBalloonFromWorld(Balloon balloon, Light light) {
 		world.destroyBody(balloon.getBody()); // Remove body from world
 		balloons.remove(balloon); // Remove balloon from list
 		light.remove(); // Remove light from world
@@ -288,7 +298,20 @@ public class PlayScreen extends BaseScreen {
 		}).on("playerDisconnected", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
-				hud.setScore2(0);
+				//hud.getScore(1).setPoints(0);
+			}
+		}).on("newPlayer", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				JSONObject response = (JSONObject) args[0];
+
+				try {
+					Gdx.app.log("SocketIO", "Players: " + response.getInt("players"));
+					if(response.getInt("players") > 1)
+						gameState = 'p';
+				} catch (JSONException e) {
+
+				}
 			}
 		}).on("balloonTouched", new Emitter.Listener() {
 			@Override
@@ -296,10 +319,10 @@ public class PlayScreen extends BaseScreen {
 				JSONObject player = (JSONObject) args[0];
 
 				try {
-					if(playerId == player.getString("id"))
-						hud.setScore(player.getInt("score"));
+					if(playerId.equals(player.getString("id")))
+						hud.getScore(0).setLabel(player.getInt("score"));
 					else
-						hud.setScore2(player.getInt("score"));
+						hud.getScore(1).setLabel(player.getInt("score"));
 				} catch (JSONException e) {
 
 				}
@@ -311,10 +334,10 @@ public class PlayScreen extends BaseScreen {
 				try {
 					for(int i = 0; i < jsonPlayers.length(); i++) {
 						JSONObject player = jsonPlayers.getJSONObject(i);
-						if(playerId == player.getString("id"))
-							hud.setScore(player.getInt("score"));
+						if(playerId.equals(player.getString("id")))
+							hud.getScore(0).setLabel(player.getInt("score"));
 						else
-							hud.setScore2(player.getInt("score"));
+							hud.getScore(1).setLabel(player.getInt("score"));
 					}
 				} catch (JSONException e) {
 

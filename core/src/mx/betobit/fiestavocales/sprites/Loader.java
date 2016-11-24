@@ -15,6 +15,7 @@ public class Loader extends SpriteAnimation {
 	public Loader(PlayScreen playScreen, int width, int height, float x, float y) {
 		super(playScreen, width, height, x, y);
 		defineSpriteSheet();
+		setPosition(getX() - width/2, getY() - height/2);
 	}
 
 	/**

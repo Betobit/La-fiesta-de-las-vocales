@@ -3,6 +3,7 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var players = [];
+var ready = false;
 
 // Run localhost on port 8080
 server.listen(8080, function() {
@@ -14,10 +15,12 @@ server.listen(8080, function() {
 ******************************/
 io.on('connection', function(socket) {
 	console.log("Player Connected!");
+	players.push(new Player(socket.id, 0));
 
 	// Emitters
 	socket.emit('socketId', { id: socket.id });
 	socket.emit('getPlayers', players);
+	socket.emit('newPlayer', { players: players.length });
 
 	socket.on('disconnect', function(){
 		console.log("Player disconnected");
@@ -36,8 +39,6 @@ io.on('connection', function(socket) {
 			}
 		}
 	});
-
-	players.push(new Player(socket.id, 0));
 });
 
 /******************************

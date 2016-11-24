@@ -123,6 +123,14 @@ public class Balloon extends SpriteAnimation {
 	}
 
 	/**
+	 * Get word attached to body
+	 * @return
+	 */
+	public Word getWord() {
+		return word;
+	}
+
+	/**
 	 * Detect tap or click in sprite custom bounds
 	 */
 	public void onTap(OnTapListener listener) {
@@ -137,6 +145,9 @@ public class Balloon extends SpriteAnimation {
 		}
 	}
 
+	/**
+	 * Custom interface to manage tap listener on body
+	 */
 	public interface OnTapListener {
 		void onTap();
 	}
