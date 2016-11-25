@@ -28,25 +28,32 @@ import mx.betobit.fiestavocales.utils.WordGenerator;
 
 public class Balloon extends SpriteAnimation {
 
-	private World world;
+	private static World world;
 	private Body body;
 
 	private Word word;
 	private BitmapFont customFont;
 
-	public Balloon(PlayScreen playScreen, Color color, float x, float y) {
+	public Balloon(PlayScreen playScreen, BitmapFont font, Texture spriteSheet, int wordId, Color color, float x, float y) {
 		super(playScreen, 50, 120, x, y);
-		this.word = WordGenerator.getWord();
+		word = WordGenerator.getWord(wordId);
 		this.world = playScreen.getWorld();
 		this.batch = playScreen.getGame().getBatch();
-
-		customFont = new BitmapFont(Gdx.files.internal("font/regular.fnt"));
-		customFont.getData().setScale(0.85f);
-		customFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		customFont = font;
+		setSpriteSheet(spriteSheet);
 
 		setColor(color);
 		defineBox2dBody();
-		defineSpriteSheet();
+		//defineSpriteSheet();
+		setTextureRegion(new TextureRegion(spriteSheet, 57, 458));
+
+		TextureRegion[][] splited = getTextureRegion().split(57, 152);
+		TextureRegion[] frames = new TextureRegion[3];
+
+		for (int i = 0; i < 3; i++)
+			frames[i] = splited[i][0];
+		setAnimation(new Animation(0.15f, frames));
+
 	}
 
 
@@ -56,6 +63,11 @@ public class Balloon extends SpriteAnimation {
 	 */
 	public void update(float delta) {
 		TextureRegion frame = getAnimation().getKeyFrame(duration, true);
+
+		float x = body.getPosition().x;
+		float y = body.getPosition().y;
+
+		body.setTransform(x, y + 0.8f, body.getAngle());
 
 		// Center sprite in body
 		setX(body.getPosition().x - 25);
@@ -88,7 +100,7 @@ public class Balloon extends SpriteAnimation {
 		fdef.restitution = 0f;
 		body.createFixture(fdef);
 
-		body.setLinearVelocity(MathUtils.random(-5, 5), MathUtils.random(0, 20) );
+		//body.setLinearVelocity(MathUtils.random(-5, 5), MathUtils.random(0, 20) );
 	}
 
 	/**
@@ -104,14 +116,6 @@ public class Balloon extends SpriteAnimation {
 		else
 			setSpriteSheet(new Texture("balloons_green.png"));
 
-		setTextureRegion(new TextureRegion(getSpriteSheet(), 57, 458));
-
-		TextureRegion[][] splited = getTextureRegion().split(57, 152);
-		TextureRegion[] frames = new TextureRegion[3];
-
-		for (int i = 0; i < 3; i++)
-			frames[i] = splited[i][0];
-		setAnimation(new Animation(0.15f, frames));
 	}
 
 	/**

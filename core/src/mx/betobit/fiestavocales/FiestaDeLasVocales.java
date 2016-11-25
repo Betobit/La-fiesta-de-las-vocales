@@ -3,7 +3,7 @@ package mx.betobit.fiestavocales;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import mx.betobit.fiestavocales.screens.MainScreen;
+import mx.betobit.fiestavocales.screens.MenuScreen;
 
 public class FiestaDeLasVocales extends Game {
 
@@ -23,7 +23,7 @@ public class FiestaDeLasVocales extends Game {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		setScreen(new MainScreen(this));
+		setScreen(new MenuScreen(this));
 	}
 
 	@Override

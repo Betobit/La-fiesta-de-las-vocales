@@ -21,7 +21,7 @@ import mx.betobit.fiestavocales.FiestaDeLasVocales;
 /**
  * Main menu screen. The first screen which the user interacts.
  */
-public class MainScreen extends BaseScreen {
+public class MenuScreen extends BaseScreen {
 
 	private Sprite background;
 	private Stage stage;
@@ -32,7 +32,7 @@ public class MainScreen extends BaseScreen {
 	/**
 	 * Constructor
 	 */
-	public MainScreen(FiestaDeLasVocales game) {
+	public MenuScreen(FiestaDeLasVocales game) {
 		super(game, 800, 480);
 		width = getWidth();
 		height= getHeight();
@@ -98,7 +98,9 @@ public class MainScreen extends BaseScreen {
 		home.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				getGame().setScreen(new PlayersScreen(getGame()));
+				//getGame().setScreen(new PlayersScreen(getGame()));
+
+				getGame().setScreen(new PlayScreen(getGame(), false));
 			}
 		});
 
