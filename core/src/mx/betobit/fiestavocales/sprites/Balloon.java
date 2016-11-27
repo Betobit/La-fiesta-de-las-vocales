@@ -67,7 +67,7 @@ public class Balloon extends SpriteAnimation {
 		float x = body.getPosition().x;
 		float y = body.getPosition().y;
 
-		body.setTransform(x, y + 0.8f, body.getAngle());
+		//body.setTransform(x, y + 0.8f, body.getAngle());
 
 		// Center sprite in body
 		setX(body.getPosition().x - 25);
@@ -107,14 +107,6 @@ public class Balloon extends SpriteAnimation {
 	 * Get the sprite sheet of the balloon, split it and create the animation.
 	 */
 	protected void defineSpriteSheet() {
-		String color = getColor().toString();
-
-		if(color.contains(Constants.SCARLET.substring(0,6)))
-			setSpriteSheet(new Texture("balloons_pink.png"));
-		else if(color.contains(Constants.CYAN.substring(0,6)))
-			setSpriteSheet(new Texture("balloons_blue.png"));
-		else
-			setSpriteSheet(new Texture("balloons_green.png"));
 
 	}
 

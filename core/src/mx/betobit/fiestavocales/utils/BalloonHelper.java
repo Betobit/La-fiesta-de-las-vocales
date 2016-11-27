@@ -20,12 +20,13 @@ public class BalloonHelper {
 	private static World world;
 	private static BitmapFont customFont;
 	private static PlayScreen screen;
-	private Texture spriteSheet;
-	private TextureRegion textureRegion;
+	private static Texture spriteSheetPink;
+	private static Texture spriteSheetGreen;
+	private static Texture spriteSheetBlue;
 	private Color color;
 
 	public BalloonHelper(PlayScreen playScreen) {
-		defineSpriteSheet();
+		defineSpriteSheets();
 		screen = playScreen;
 		customFont = new BitmapFont(Gdx.files.internal("font/regular.fnt"));
 		customFont.getData().setScale(0.85f);
@@ -33,25 +34,25 @@ public class BalloonHelper {
 	}
 
 	public Balloon createBalloon(Color color, int wordId, float x, float y) {
-		return new Balloon(screen, customFont, spriteSheet, wordId, color, x, y);
+		String colorStr = color.toString();
+		Balloon balloon;
+
+		if(colorStr.contains(Constants.SCARLET.substring(0,6)))
+			balloon = new Balloon(screen, customFont, spriteSheetPink, wordId, color, x, y);
+		else if(colorStr.contains(Constants.CYAN.substring(0,6)))
+			balloon = new Balloon(screen, customFont, spriteSheetBlue, wordId, color, x, y);
+		else {
+			balloon = new Balloon(screen, customFont, spriteSheetGreen, wordId, color, x, y);
+		}
+
+		return balloon;
 	}
 	/**
 	 * Get the sprite sheet of the balloon, split it and create the animation.
 	 */
-	protected void defineSpriteSheet() {
-
-		switch (MathUtils.random(2)) {
-			case 0:
-				spriteSheet = new Texture("balloons_pink.png");
-				break;
-			case 1:
-				spriteSheet = new Texture("balloons_blue.png");
-				break;
-			case 2:
-				spriteSheet = new Texture("balloons_green.png");
-				break;
-		}
-
-		textureRegion = new TextureRegion(spriteSheet, 57, 458);
+	protected void defineSpriteSheets() {
+		spriteSheetPink = new Texture("balloons_pink.png");
+		spriteSheetGreen = new Texture("balloons_blue.png");
+		spriteSheetBlue = new Texture("balloons_green.png");
 	}
 }

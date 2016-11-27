@@ -68,7 +68,6 @@ public class PlayScreen extends BaseScreen {
 	private Socket socket;
 	private String playerId;
 	private char gameState;
-	private boolean multiplayer;
 	private BalloonHelper balloonHelper;
 
 	/**
@@ -78,9 +77,8 @@ public class PlayScreen extends BaseScreen {
 		super(game, 800, 480);
 		width = getWidth();
 		height= getHeight();
-		this.multiplayer = multiplayer;
 
-		gameState = this.multiplayer ? 'w' : 'p';
+		gameState = multiplayer ? 'w' : 'p';
 		balloons = new ArrayList<Balloon>();
 		lights = new ArrayList<Light>();
 		b2dr = new Box2DDebugRenderer();
@@ -119,7 +117,7 @@ public class PlayScreen extends BaseScreen {
 	private void addBalloon() {
 		Balloon b = balloonHelper.createBalloon(
 				Color.WHITE, -1,
-				MathUtils.random(0, width), -50); // Position
+				MathUtils.random(0, width), height/2); // Position
 
 		balloons.add(b);
 		attachLightToBody(b.getBody(), b.getColor(), 90);
@@ -134,7 +132,7 @@ public class PlayScreen extends BaseScreen {
 			json.put("y", b.getBody().getPosition().y);
 			socket.emit("newBalloon", json);
 		} catch (JSONException e) {
-			Gdx.app.log("Error", "Error creating bew balloon json");
+			Gdx.app.log("Error", "Error creating new balloon json");
 		}
 
 	}
@@ -319,20 +317,23 @@ public class PlayScreen extends BaseScreen {
 			public void call(Object... args) {
 				//hud.getScore(1).setPoints(0);
 			}
-		}).on("newPlayer", new Emitter.Listener() {
+		}).on("startGame", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject response = (JSONObject) args[0];
-;
 				try {
-					Gdx.app.log("SocketIO", "Players: " + response.getInt("players"));
 					if(response.getInt("players") > 1) {
-						addBalloon();
+						hud.startTimer();
 						gameState = 'p';
 					}
 				} catch (JSONException e) {
 
 				}
+			}
+		}).on("newPlayer", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				addBalloon();
 			}
 		}).on("balloonTouched", new Emitter.Listener() {
 			@Override
@@ -368,7 +369,7 @@ public class PlayScreen extends BaseScreen {
 			@Override
 			public void call(Object... args) {
 				JSONArray jsonBalloons = (JSONArray) args[0];
-				Gdx.app.log("SOCKETIO", jsonBalloons.toString());
+
 				try {
 					for(int i = 0; i < jsonBalloons.length(); i++) {
 						JSONObject jsonBalloon = jsonBalloons.getJSONObject(i);
@@ -383,6 +384,20 @@ public class PlayScreen extends BaseScreen {
 						balloons.add(b);
 
 						attachLightToBody(b.getBody(), b.getColor(), 90);
+					}
+				} catch (JSONException e) {
+
+				}
+			}
+		}).on("destroyBalloon", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				JSONObject jsonBalloon = (JSONObject) args[0];
+
+				try {
+					for(Balloon b : balloons) {
+						if(jsonBalloon.getInt("id") == 0)
+							deleteBalloon(b, null);
 					}
 				} catch (JSONException e) {
 

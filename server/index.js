@@ -21,22 +21,23 @@ io.on('connection', function(socket) {
 	// Emitters
 	socket.emit('socketId', { id: socket.id });
 	socket.emit('getPlayers', players);
-	socket.emit('newPlayer', { players: players.length });
-	socket.broadcast.emit('newPlayer', { players: players.length });
+	socket.emit('startGame', { players: players.length });
+	socket.broadcast.emit('startGame', { players: players.length });
+	socket.broadcast.emit('newPlayer', { });
 
 	socket.on('newBalloon', function(balloon) {
-
 		var founded = false;
 		for(var i = 0; i < balloons.length; i++){
 			if(balloons[i].id == balloon.id){
 				founded = true;
-				return;
+				break;
 			}
 		}
 
-		if(!founded)
+		if(!founded) {
 			balloons.push(new Balloon(balloon));
-		socket.broadcast.emit('getBalloons', balloons);
+			socket.broadcast.emit('getBalloons', balloons);
+		}
 	});
 
 	socket.on('disconnect', function(){
@@ -63,6 +64,7 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on("destroyBalloon", function(balloon) {
+		socket.emit('destroyBalloon', { id: balloon.id });
 		for(var i = 0; i < balloons.length; i++){
 			if(balloons[i].id == balloon.id){
 				balloons.splice(i, 1);

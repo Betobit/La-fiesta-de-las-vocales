@@ -30,12 +30,14 @@ public class Hud {
 	private int time;
 	private float timeCounter;
 	private Label timeLabel;
+	private boolean start;
 
 	/**
 	 * Constructor
 	 * @param viewport
 	 */
 	public Hud(Viewport viewport) {
+		start = false;
 		stage = new Stage(viewport);
 		table = new Table();
 		table.top();
@@ -64,14 +66,16 @@ public class Hud {
 	/**
 	 * Update timeCount and score.
 	 */
-	public void update(float dt){
-		timeCounter += dt;
-		if(timeCounter >= 1){
-			if (time > 0) {
-				time--;
+	public void update(float dt) {
+		if(start) {
+			timeCounter += dt;
+			if (timeCounter >= 1) {
+				if (time > 0) {
+					time--;
+				}
+				timeLabel.setText(String.format("%02d", time));
+				timeCounter = -1;
 			}
-			timeLabel.setText(String.format("%02d", time));
-			timeCounter  = -1;
 		}
 
 		scores.get(0).update(dt);
@@ -89,6 +93,10 @@ public class Hud {
 	 */
 	public int getTime() {
 		return time;
+	}
+
+	public void startTimer() {
+		start = true;
 	}
 /*
 	public void setScore(int score) {
