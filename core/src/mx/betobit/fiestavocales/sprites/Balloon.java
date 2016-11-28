@@ -59,7 +59,6 @@ public class Balloon extends SpriteAnimation {
 			frames[i] = splited[i][0];
 		setAnimation(new Animation(0.15f, frames));
 		attachLightToBody();
-
 	}
 
 	/**

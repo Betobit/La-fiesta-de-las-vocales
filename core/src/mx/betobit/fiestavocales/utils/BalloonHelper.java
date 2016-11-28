@@ -49,9 +49,9 @@ public class BalloonHelper {
 		if(colorStr.contains(Constants.SCARLET.substring(0,6)))
 			balloon = new Balloon(id, spriteSheetPink, wordId, Color.SCARLET, x, y);
 		else if(colorStr.contains(Constants.CYAN.substring(0,6)))
-			balloon = new Balloon(id, spriteSheetBlue, wordId, Color.GREEN, x, y);
+			balloon = new Balloon(id, spriteSheetBlue, wordId, Color.CYAN, x, y);
 		else {
-			balloon = new Balloon(id, spriteSheetGreen, wordId, Color.CYAN, x, y);
+			balloon = new Balloon(id, spriteSheetGreen, wordId, Color.GREEN, x, y);
 		}
 
 		return balloon;
@@ -61,8 +61,8 @@ public class BalloonHelper {
 	 */
 	private void defineSpriteSheets() {
 		spriteSheetPink = new Texture("balloons_pink.png");
-		spriteSheetGreen = new Texture("balloons_blue.png");
-		spriteSheetBlue = new Texture("balloons_green.png");
+		spriteSheetGreen = new Texture("balloons_green.png");
+		spriteSheetBlue = new Texture("balloons_blue.png");
 	}
 
 	public static void updateRayHandler() {
