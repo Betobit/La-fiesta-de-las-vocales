@@ -55,6 +55,7 @@ io.on('connection', function(socket) {
 	socket.on('updateScore', function (data) {
 		data.id = socket.id;
 		socket.broadcast.emit("updateScore", data);
+		//socket.emit("updateScore", data);
 
 		var len = players.length;
 		for(var i = 0; i < len; i++) {
@@ -68,7 +69,6 @@ io.on('connection', function(socket) {
 		//socket.emit('deleteBalloon', { id: balloon.id });
 		socket.broadcast.emit('deleteBalloon', { id: balloon.id });
 		for(var i = 0; i < balloons.length; i++) {
-			console.log("deleteBalloon " + JSON.stringify(balloons[i]))
 			if(balloons[i].id == balloon.id){
 				balloons.splice(i, 1);
 			}

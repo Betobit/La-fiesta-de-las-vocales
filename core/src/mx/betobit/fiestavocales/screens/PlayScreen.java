@@ -106,11 +106,11 @@ public class PlayScreen extends BaseScreen {
 	/**
 	 * Add balloon with light.
 	 */
-	private void addBalloon() {
+	private void addBalloon(int positionY) {
 		Balloon b = balloonHelper.createBalloon(
-				playerId + balloons.size(), // Id
+				playerId + MathUtils.random(1000), // Id
 				Tools.getRandomColor(), -1, // Color, wordId
-				MathUtils.random(0, width), height/2); // Position
+				MathUtils.random(0, width), positionY); // Position
 
 		balloons.put(b.getId(), b);
 
@@ -128,19 +128,6 @@ public class PlayScreen extends BaseScreen {
 		}
 
 	}
-
-	/**
-	 * Attach a Point light to the given body.
-	 *
-	 * @param body     The body to attach the light.
-	 * @param color    Color of the light.
-	 * @param distance Distance of the light.
-	 */
-	/*private void attachLightToBody(Body body, Color color, int distance) {
-		PointLight light = new PointLight(rayHandler, 10, color, distance, width / 2, height / 2);
-		light.attachToBody(body);
-		lights.add(light);
-	}*/
 
 	@Override
 	public void render(float delta) {
@@ -160,8 +147,8 @@ public class PlayScreen extends BaseScreen {
 			case 'p': // play
 				hud.update(delta);
 				world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-				//rayHandler.setCombinedMatrix(getCamera());
-				//rayHandler.updateAndRender();
+				rayHandler.setCombinedMatrix(getCamera());
+				rayHandler.updateAndRender();
 
 				if (Constants.DEBUGGING) {
 					b2dr.render(world, getCamera().combined);
@@ -171,7 +158,7 @@ public class PlayScreen extends BaseScreen {
 				renderBalloons(delta);
 
 				if(newBalloon) {
-					addBalloon();
+					addBalloon(-50);
 					newBalloon = false;
 				}
 
@@ -206,7 +193,6 @@ public class PlayScreen extends BaseScreen {
 	private void renderBalloons(float delta) {
 		for(final HashMap.Entry<String, Balloon> entry : balloons.entrySet()) {
 			final Balloon b = entry.getValue();
-			b.update(delta);
 			if (b.getY() > height - 20) {
 				deleteBalloon(b, entry.getKey());
 			}
@@ -231,6 +217,8 @@ public class PlayScreen extends BaseScreen {
 				shapeRenderer.rect(b.getX() - 5, b.getY() + 60, 60, 80);
 				shapeRenderer.end();
 			}
+
+			b.update(delta);
 		}
 	}
 
@@ -273,7 +261,7 @@ public class PlayScreen extends BaseScreen {
 	 */
 	public void connectSocket(){
 		try {
-			socket = IO.socket("http://localhost:8080");
+			socket = IO.socket(Constants.SERVER_IP);
 			socket.connect();
 		} catch(Exception e){
 			System.out.println(e);
@@ -319,7 +307,8 @@ public class PlayScreen extends BaseScreen {
 		}).on("newPlayer", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
-				addBalloon();
+				for(int i = 0; i < 4; i++)
+					addBalloon(MathUtils.random(0, height/2));
 			}
 		}).on("updateScore", new Emitter.Listener() {
 			@Override
@@ -367,7 +356,8 @@ public class PlayScreen extends BaseScreen {
 										Color.valueOf(jsonBalloon.getString("color")), // Color
 										jsonBalloon.getInt("wordId"), // Word id
 										position.x, position.y); // Position
-						balloons.put(b.getId(), b);
+						if(!balloons.containsKey(b.getId()))
+							balloons.put(b.getId(), b);
 					}
 				} catch (JSONException e) {
 
@@ -377,7 +367,6 @@ public class PlayScreen extends BaseScreen {
 			@Override
 			public void call(Object... args) {
 				JSONObject jsonBalloon = (JSONObject) args[0];
-				Gdx.app.log(playerId, jsonBalloon.toString());
 				try {
 					balloons.remove(jsonBalloon.getString("id"));
 				} catch (JSONException e) {

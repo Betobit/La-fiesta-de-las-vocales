@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import box2dLight.Light;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import mx.betobit.fiestavocales.screens.PlayScreen;
@@ -69,7 +70,7 @@ public class Balloon extends SpriteAnimation {
 	 * Attach a Point light to the given body.
 	 */
 	private void attachLightToBody() {
-		PointLight light = new PointLight(rayHandler, 10, Color.WHITE, 90, 20, 30);
+		PointLight light = new PointLight(rayHandler, 10, getColor(), 90, 20, 30);
 		light.attachToBody(body);
 	}
 
