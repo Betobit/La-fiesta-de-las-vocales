@@ -20,15 +20,13 @@ io.on('connection', function(socket) {
 
 	// Emitters
 	socket.emit('socketId', { id: socket.id });
-	socket.emit('getPlayers', players);
 	socket.emit('startGame', { players: players.length });
 	socket.broadcast.emit('startGame', { players: players.length });
 	socket.broadcast.emit('newPlayer', { });
 
 	socket.on('newBalloon', function(balloon) {
 		var founded = false;
-		for(var i = 0; i < balloons.length; i++){
-			console.log(balloons[i]);
+		for(var i = 0; i < balloons.length; i++) {
 			if(balloons[i].id == balloon.id){
 				founded = true;
 				return;
@@ -60,6 +58,7 @@ io.on('connection', function(socket) {
 		var len = players.length;
 		for(var i = 0; i < len; i++) {
 			if(data.id == players[i].id) {
+				console.log(JSON.stringify(players[i]))
 				players[i]["score"] = data.score;
 			}
 		}

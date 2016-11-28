@@ -98,9 +98,7 @@ public class MenuScreen extends BaseScreen {
 		home.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				//getGame().setScreen(new PlayersScreen(getGame()));
-
-				getGame().setScreen(new PlayScreen(getGame(), false));
+				getGame().setScreen(new PlayersScreen(getGame()));
 			}
 		});
 

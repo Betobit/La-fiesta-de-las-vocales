@@ -67,7 +67,10 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 		width = getWidth();
 		height= getHeight();
 
-		gameState = multiplayer ? 'w' : 'p';
+		// World
+		world = new World(new Vector2(0, 0), false);
+		hud = new Hud(game, getViewport(), multiplayer);
+		balloonHelper = new BalloonHelper(this);
 		balloons = new ConcurrentHashMap<String, Balloon>();
 		b2dr = new Box2DDebugRenderer();
 		shapeRenderer = new ShapeRenderer();
@@ -75,6 +78,15 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 		customFont = new BitmapFont(Gdx.files.internal("font/font.fnt"));
 		socketClient = new SocketClient();
 		socketClient.setSocketInterface(this);
+
+		if(multiplayer) {
+			gameState = 'w';
+		} else {
+			gameState = 'p';
+			hud.startTimer();
+			for(int i = 0; i < 4; i++)
+				addBalloon(MathUtils.random(0, height/2));
+		}
 	}
 
 	/**
@@ -86,13 +98,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 		Texture textureBackground = new Texture("bkg_sky.jpg");
 		background = new Sprite(textureBackground);
 
-		// World
-		world = new World(new Vector2(0, 0), false);
-
-		balloonHelper = new BalloonHelper(this);
-
 		newBalloon = false;
-		hud = new Hud(getViewport());
 		loader = new Loader(this, 120, 120, width/2, height/2);
 	}
 
@@ -126,7 +132,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 				break;
 			case 'p': // play
 				world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-				//BalloonHelper.updateRayHandler();
+				BalloonHelper.updateRayHandler();
 				hud.update(delta);
 
 				if (Constants.DEBUGGING) {
@@ -142,8 +148,13 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 				}
 
 				if(hud.getTime() <= 0) {
-					//gameState = 'w';
+					gameState = 'f';
+					hud.finishGame();
 				}
+				break;
+			case 'f': // finish
+				hud.update(delta);
+				break;
 		}
 	}
 
@@ -164,6 +175,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 		for(final HashMap.Entry<String, Balloon> entry : balloons.entrySet()) {
 			final Balloon b = entry.getValue();
 			if (b.getY() > height - 20) {
+				newBalloon = true;
 				deleteBalloon(entry.getKey());
 			}
 
@@ -171,14 +183,14 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 				@Override
 				public void onTap() {
 					popSound.play(0.5f);
-					socketClient.emitScore(hud.getScore(0).getPoints());
-					socketClient.emitDeleteBalloon(b);
 					if(b.getWord().isDiphthong())
 						hud.getScore(0).addPoints(20);
 					else
 						hud.getScore(0).addPoints(-20);
 					deleteBalloon(entry.getKey());
 					newBalloon = true;
+					socketClient.emitScore(hud.getScore(0).getPoints());
+					socketClient.emitDeleteBalloon(b);
 				}
 			});
 
@@ -235,15 +247,6 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 			hud.getScore(0).setLabel(score);
 		else
 			hud.getScore(1).setLabel(score);
-	}
-
-	@Override
-	public void onGetPlayers(Boolean player1, int score) {
-		if(player1)
-			hud.getScore(0).setLabel(score);
-		else
-			hud.getScore(1).setLabel(score);
-
 	}
 
 	@Override

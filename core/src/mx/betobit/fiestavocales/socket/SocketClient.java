@@ -136,22 +136,6 @@ public class SocketClient {
 
 				}
 			}
-		}).on("getPlayers", new Emitter.Listener() {
-			@Override
-			public void call(Object... args) {
-				JSONArray jsonPlayers = (JSONArray) args[0];
-				try {
-					for(int i = 0; i < jsonPlayers.length(); i++) {
-						JSONObject player = jsonPlayers.getJSONObject(i);
-						if(playerId.equals(player.getString("id")))
-							socketInterface.onGetPlayers(true, player.getInt("score"));
-						else
-							socketInterface.onGetPlayers(true, player.getInt("score"));
-					}
-				} catch (JSONException e) {
-
-				}
-			}
 		}).on("getBalloons", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {

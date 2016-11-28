@@ -11,7 +11,6 @@ public interface SocketInterface {
 	void onStartGame();
 	void onNewPlayer();
 	void onUpdateScore(Boolean player1, int score);
-	void onGetPlayers(Boolean player1, int score);
 	void onGetBalloons(JSONArray jsonBalloons);
 	void onDeleteBalloon(String id);
 }
