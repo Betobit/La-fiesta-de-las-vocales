@@ -17,6 +17,11 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import box2dLight.PointLight;
+import box2dLight.RayHandler;
 import mx.betobit.fiestavocales.screens.PlayScreen;
 import mx.betobit.fiestavocales.utils.Constants;
 import mx.betobit.fiestavocales.utils.Word;
@@ -29,16 +34,20 @@ import mx.betobit.fiestavocales.utils.WordGenerator;
 public class Balloon extends SpriteAnimation {
 
 	private static World world;
+	private static RayHandler rayHandler;
 	private Body body;
 
+	private int id;
 	private Word word;
 	private BitmapFont customFont;
 
-	public Balloon(PlayScreen playScreen, BitmapFont font, Texture spriteSheet, int wordId, Color color, float x, float y) {
+	public Balloon(PlayScreen playScreen, int id, RayHandler rayHandler, BitmapFont font, Texture spriteSheet, int wordId, Color color, float x, float y) {
 		super(playScreen, 50, 120, x, y);
 		word = WordGenerator.getWord(wordId);
+		this.rayHandler = rayHandler;
 		this.world = playScreen.getWorld();
 		this.batch = playScreen.getGame().getBatch();
+		this.id = id;
 		customFont = font;
 		setSpriteSheet(spriteSheet);
 
@@ -53,9 +62,17 @@ public class Balloon extends SpriteAnimation {
 		for (int i = 0; i < 3; i++)
 			frames[i] = splited[i][0];
 		setAnimation(new Animation(0.15f, frames));
+		attachLightToBody();
 
 	}
 
+	/**
+	 * Attach a Point light to the given body.
+	 */
+	private void attachLightToBody() {
+		PointLight light = new PointLight(rayHandler, 10, Color.WHITE, 90, 20, 30);
+		light.attachToBody(body);
+	}
 
 	/**
 	 * Get the frame of the animation and draw it. Also draw the word label and set bounds
@@ -108,6 +125,14 @@ public class Balloon extends SpriteAnimation {
 	 */
 	protected void defineSpriteSheet() {
 
+	}
+
+	/**
+	 * Get id of the balloon
+	 * @return
+	 */
+	public int getId() {
+		return id;
 	}
 
 	/**

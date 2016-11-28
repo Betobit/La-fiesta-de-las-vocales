@@ -6,8 +6,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.box2d.World;
 
+import box2dLight.RayHandler;
 import mx.betobit.fiestavocales.screens.PlayScreen;
 import mx.betobit.fiestavocales.sprites.Balloon;
 
@@ -17,32 +19,32 @@ import mx.betobit.fiestavocales.sprites.Balloon;
 
 public class BalloonHelper {
 
-	private static World world;
+	private static RayHandler rayHandler;
 	private static BitmapFont customFont;
 	private static PlayScreen screen;
 	private static Texture spriteSheetPink;
 	private static Texture spriteSheetGreen;
 	private static Texture spriteSheetBlue;
-	private Color color;
 
-	public BalloonHelper(PlayScreen playScreen) {
+	public BalloonHelper(PlayScreen playScreen, RayHandler rayHandler) {
 		defineSpriteSheets();
 		screen = playScreen;
+		this.rayHandler = rayHandler;
 		customFont = new BitmapFont(Gdx.files.internal("font/regular.fnt"));
 		customFont.getData().setScale(0.85f);
 		customFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	}
 
-	public Balloon createBalloon(Color color, int wordId, float x, float y) {
+	public Balloon createBalloon(int id, Color color, int wordId, float x, float y) {
 		String colorStr = color.toString();
 		Balloon balloon;
 
 		if(colorStr.contains(Constants.SCARLET.substring(0,6)))
-			balloon = new Balloon(screen, customFont, spriteSheetPink, wordId, color, x, y);
+			balloon = new Balloon(screen, id, rayHandler, customFont, spriteSheetPink, wordId, color, x, y);
 		else if(colorStr.contains(Constants.CYAN.substring(0,6)))
-			balloon = new Balloon(screen, customFont, spriteSheetBlue, wordId, color, x, y);
+			balloon = new Balloon(screen, id, rayHandler, customFont, spriteSheetBlue, wordId, color, x, y);
 		else {
-			balloon = new Balloon(screen, customFont, spriteSheetGreen, wordId, color, x, y);
+			balloon = new Balloon(screen, id, rayHandler, customFont, spriteSheetGreen, wordId, color, x, y);
 		}
 
 		return balloon;

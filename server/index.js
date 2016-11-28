@@ -30,7 +30,7 @@ io.on('connection', function(socket) {
 		for(var i = 0; i < balloons.length; i++){
 			if(balloons[i].id == balloon.id){
 				founded = true;
-				break;
+				return;
 			}
 		}
 
