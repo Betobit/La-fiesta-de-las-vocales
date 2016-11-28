@@ -46,7 +46,6 @@ public class PlayScreen extends BaseScreen {
 	private int width;
 	private int height;
 	private World world;
-	private RayHandler rayHandler;
 
 	// Bodies
 	private ConcurrentHashMap<String, Balloon> balloons;
@@ -90,10 +89,8 @@ public class PlayScreen extends BaseScreen {
 
 		// World
 		world = new World(new Vector2(0, 0), false);
-		rayHandler = new RayHandler(world);
-		rayHandler.setAmbientLight(0.7f);
 
-		balloonHelper = new BalloonHelper(this, rayHandler);
+		balloonHelper = new BalloonHelper(this);
 
 		newBalloon = false;
 		hud = new Hud(getViewport());
@@ -145,10 +142,9 @@ public class PlayScreen extends BaseScreen {
 				batch.end();
 				break;
 			case 'p': // play
-				hud.update(delta);
 				world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-				rayHandler.setCombinedMatrix(getCamera());
-				rayHandler.updateAndRender();
+				BalloonHelper.updateRayHandler();
+				hud.update(delta);
 
 				if (Constants.DEBUGGING) {
 					b2dr.render(world, getCamera().combined);
@@ -230,6 +226,7 @@ public class PlayScreen extends BaseScreen {
 	private void deleteBalloon(Balloon balloon, String key) {
 		world.destroyBody(balloon.getBody()); // Remove body from world
 		balloons.remove(key); // Remove from hash map
+		balloon.removeLight(); // Remove light form world
 		newBalloon = true;
 
 		JSONObject json = new JSONObject();
@@ -243,7 +240,6 @@ public class PlayScreen extends BaseScreen {
 
 	@Override
 	public void dispose() {
-		rayHandler.dispose();
 		b2dr.dispose();
 		// TODO: Dispoes balloons
 	}

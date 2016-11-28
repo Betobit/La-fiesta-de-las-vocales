@@ -4,10 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.physics.box2d.World;
 
 import box2dLight.RayHandler;
 import mx.betobit.fiestavocales.screens.PlayScreen;
@@ -26,13 +22,15 @@ public class BalloonHelper {
 	private static Texture spriteSheetGreen;
 	private static Texture spriteSheetBlue;
 
-	public BalloonHelper(PlayScreen playScreen, RayHandler rayHandler) {
+	public BalloonHelper(PlayScreen playScreen) {
 		defineSpriteSheets();
 		screen = playScreen;
-		this.rayHandler = rayHandler;
 		customFont = new BitmapFont(Gdx.files.internal("font/regular.fnt"));
 		customFont.getData().setScale(0.85f);
 		customFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+		rayHandler = new RayHandler(screen.getWorld());
+		rayHandler.setAmbientLight(0.6f);
 	}
 
 	/**
@@ -49,11 +47,11 @@ public class BalloonHelper {
 		Balloon balloon;
 
 		if(colorStr.contains(Constants.SCARLET.substring(0,6)))
-			balloon = new Balloon(screen, id, rayHandler, customFont, spriteSheetPink, wordId, color, x, y);
+			balloon = new Balloon(id, spriteSheetPink, wordId, Color.SCARLET, x, y);
 		else if(colorStr.contains(Constants.CYAN.substring(0,6)))
-			balloon = new Balloon(screen, id, rayHandler, customFont, spriteSheetBlue, wordId, color, x, y);
+			balloon = new Balloon(id, spriteSheetBlue, wordId, Color.GREEN, x, y);
 		else {
-			balloon = new Balloon(screen, id, rayHandler, customFont, spriteSheetGreen, wordId, color, x, y);
+			balloon = new Balloon(id, spriteSheetGreen, wordId, Color.CYAN, x, y);
 		}
 
 		return balloon;
@@ -61,9 +59,26 @@ public class BalloonHelper {
 	/**
 	 * Get the sprite sheet of the balloon, split it and create the animation.
 	 */
-	protected void defineSpriteSheets() {
+	private void defineSpriteSheets() {
 		spriteSheetPink = new Texture("balloons_pink.png");
 		spriteSheetGreen = new Texture("balloons_blue.png");
 		spriteSheetBlue = new Texture("balloons_green.png");
+	}
+
+	public static void updateRayHandler() {
+		rayHandler.setCombinedMatrix(screen.getCamera());
+		rayHandler.updateAndRender();
+	}
+
+	public static RayHandler getRayHandler() {
+		return rayHandler;
+	}
+
+	public static PlayScreen getScreen() {
+		return screen;
+	}
+
+	public static BitmapFont getCustomFont() {
+		return customFont;
 	}
 }

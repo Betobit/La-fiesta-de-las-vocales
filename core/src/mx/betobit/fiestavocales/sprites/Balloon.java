@@ -24,6 +24,7 @@ import box2dLight.Light;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import mx.betobit.fiestavocales.screens.PlayScreen;
+import mx.betobit.fiestavocales.utils.BalloonHelper;
 import mx.betobit.fiestavocales.utils.Constants;
 import mx.betobit.fiestavocales.utils.Word;
 import mx.betobit.fiestavocales.utils.WordGenerator;
@@ -34,24 +35,19 @@ import mx.betobit.fiestavocales.utils.WordGenerator;
 
 public class Balloon extends SpriteAnimation {
 
-	private static World world;
-	private static RayHandler rayHandler;
 	private Body body;
+	private Light light;
 
 	private String id;
 	private Word word;
-	private BitmapFont customFont;
 
-	public Balloon(PlayScreen playScreen, String id, RayHandler rayHandler, BitmapFont font, Texture spriteSheet, int wordId, Color color, float x, float y) {
-		super(playScreen, 50, 120, x, y);
+	public Balloon(String id, Texture spriteSheet, int wordId, Color color, float x, float y) {
+		super(BalloonHelper.getScreen(), 50, 120, x, y);
 		word = WordGenerator.getWord(wordId);
-		this.rayHandler = rayHandler;
-		this.world = playScreen.getWorld();
-		this.batch = playScreen.getGame().getBatch();
+		this.batch = BalloonHelper.getScreen().getGame().getBatch();
 		this.id = id;
-		customFont = font;
-		setSpriteSheet(spriteSheet);
 
+		setSpriteSheet(spriteSheet);
 		setColor(color);
 		defineBox2dBody();
 		setTextureRegion(new TextureRegion(spriteSheet, 57, 458));
@@ -70,7 +66,7 @@ public class Balloon extends SpriteAnimation {
 	 * Attach a Point light to the given body.
 	 */
 	private void attachLightToBody() {
-		PointLight light = new PointLight(rayHandler, 10, getColor(), 90, 20, 30);
+		light = new PointLight(BalloonHelper.getRayHandler(), 10, getColor(), 90, 20, 30);
 		light.attachToBody(body);
 	}
 
@@ -93,7 +89,7 @@ public class Balloon extends SpriteAnimation {
 
 		batch.begin();
 		batch.draw(frame, getX(), getY(), 50, 120);
-		customFont.draw(batch, word.getLabel(),
+		BalloonHelper.getCustomFont().draw(batch, word.getLabel(),
 				getX() + 25 - word.getLabel().length()/2*12,
 				getY() + 70);
 		batch.end();
@@ -110,7 +106,7 @@ public class Balloon extends SpriteAnimation {
 		bdef.type = BodyDef.BodyType.DynamicBody;
 		bdef.position.set(getX(), getY());
 
-		body = world.createBody(bdef);
+		body = BalloonHelper.getScreen().getWorld().createBody(bdef);
 		shape.setRadius(25f);
 		fdef.shape = shape;
 		fdef.density = 1f;
@@ -170,5 +166,12 @@ public class Balloon extends SpriteAnimation {
 	 */
 	public interface OnTapListener {
 		void onTap();
+	}
+
+	/**
+	 * Remove light from world
+	 */
+	public void removeLight() {
+		light.remove();
 	}
 }
