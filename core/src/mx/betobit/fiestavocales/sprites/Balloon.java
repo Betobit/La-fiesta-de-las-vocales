@@ -37,11 +37,11 @@ public class Balloon extends SpriteAnimation {
 	private static RayHandler rayHandler;
 	private Body body;
 
-	private int id;
+	private String id;
 	private Word word;
 	private BitmapFont customFont;
 
-	public Balloon(PlayScreen playScreen, int id, RayHandler rayHandler, BitmapFont font, Texture spriteSheet, int wordId, Color color, float x, float y) {
+	public Balloon(PlayScreen playScreen, String id, RayHandler rayHandler, BitmapFont font, Texture spriteSheet, int wordId, Color color, float x, float y) {
 		super(playScreen, 50, 120, x, y);
 		word = WordGenerator.getWord(wordId);
 		this.rayHandler = rayHandler;
@@ -53,7 +53,6 @@ public class Balloon extends SpriteAnimation {
 
 		setColor(color);
 		defineBox2dBody();
-		//defineSpriteSheet();
 		setTextureRegion(new TextureRegion(spriteSheet, 57, 458));
 
 		TextureRegion[][] splited = getTextureRegion().split(57, 152);
@@ -84,7 +83,7 @@ public class Balloon extends SpriteAnimation {
 		float x = body.getPosition().x;
 		float y = body.getPosition().y;
 
-		//body.setTransform(x, y + 0.8f, body.getAngle());
+		body.setTransform(x, y + 0.8f, body.getAngle());
 
 		// Center sprite in body
 		setX(body.getPosition().x - 25);
@@ -124,14 +123,13 @@ public class Balloon extends SpriteAnimation {
 	 * Get the sprite sheet of the balloon, split it and create the animation.
 	 */
 	protected void defineSpriteSheet() {
-
 	}
 
 	/**
 	 * Get id of the balloon
 	 * @return
 	 */
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 

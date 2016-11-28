@@ -28,6 +28,7 @@ io.on('connection', function(socket) {
 	socket.on('newBalloon', function(balloon) {
 		var founded = false;
 		for(var i = 0; i < balloons.length; i++){
+			console.log(balloons[i]);
 			if(balloons[i].id == balloon.id){
 				founded = true;
 				return;
@@ -51,9 +52,9 @@ io.on('connection', function(socket) {
 		}
 	});
 
-	socket.on('balloonTouched', function (data) {
+	socket.on('updateScore', function (data) {
 		data.id = socket.id;
-		socket.broadcast.emit("balloonTouched", data);
+		socket.broadcast.emit("updateScore", data);
 
 		var len = players.length;
 		for(var i = 0; i < len; i++) {
@@ -63,13 +64,16 @@ io.on('connection', function(socket) {
 		}
 	});
 
-	socket.on("destroyBalloon", function(balloon) {
-		socket.emit('destroyBalloon', { id: balloon.id });
-		for(var i = 0; i < balloons.length; i++){
+	socket.on("deleteBalloon", function(balloon) {
+		//socket.emit('deleteBalloon', { id: balloon.id });
+		socket.broadcast.emit('deleteBalloon', { id: balloon.id });
+		for(var i = 0; i < balloons.length; i++) {
+			console.log("deleteBalloon " + JSON.stringify(balloons[i]))
 			if(balloons[i].id == balloon.id){
 				balloons.splice(i, 1);
 			}
 		}
+		socket.broadcast.emit('getBalloons', balloons);
 	});
 });
 

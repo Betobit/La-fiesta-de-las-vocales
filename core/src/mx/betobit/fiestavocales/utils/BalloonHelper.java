@@ -35,7 +35,16 @@ public class BalloonHelper {
 		customFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 	}
 
-	public Balloon createBalloon(int id, Color color, int wordId, float x, float y) {
+	/**
+	 * Create new balloon using pre-created sprite sheets.
+	 * @param id
+	 * @param color
+	 * @param wordId
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Balloon createBalloon(String id, Color color, int wordId, float x, float y) {
 		String colorStr = color.toString();
 		Balloon balloon;
 

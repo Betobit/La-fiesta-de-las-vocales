@@ -16,11 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import box2dLight.Light;
 import box2dLight.RayHandler;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -51,7 +49,7 @@ public class PlayScreen extends BaseScreen {
 	private RayHandler rayHandler;
 
 	// Bodies
-	private ConcurrentHashMap<Integer, Balloon> balloons;
+	private ConcurrentHashMap<String, Balloon> balloons;
 	private boolean newBalloon;
 
 	// Debugging
@@ -74,7 +72,7 @@ public class PlayScreen extends BaseScreen {
 		height= getHeight();
 
 		gameState = multiplayer ? 'w' : 'p';
-		balloons = new ConcurrentHashMap<Integer, Balloon>();
+		balloons = new ConcurrentHashMap<String, Balloon>();
 		b2dr = new Box2DDebugRenderer();
 		shapeRenderer = new ShapeRenderer();
 		popSound = Gdx.audio.newSound(Gdx.files.internal("sounds/pop.mp3"));
@@ -110,12 +108,9 @@ public class PlayScreen extends BaseScreen {
 	 */
 	private void addBalloon() {
 		Balloon b = balloonHelper.createBalloon(
-				balloons.size() + 1,
-				Tools.getRandomColor(), -1,
+				playerId + balloons.size(), // Id
+				Tools.getRandomColor(), -1, // Color, wordId
 				MathUtils.random(0, width), height/2); // Position
-
-		/*balloons.add(b);
-		attachLightToBody(b.getBody(), b.getColor(), 90);*/
 
 		balloons.put(b.getId(), b);
 
@@ -181,7 +176,7 @@ public class PlayScreen extends BaseScreen {
 				}
 
 				if(hud.getTime() <= 0) {
-					gameState = 'w';
+					//gameState = 'w';
 				}
 		}
 
@@ -195,7 +190,7 @@ public class PlayScreen extends BaseScreen {
 		try {
 			json.put("id", playerId);
 			json.put("score", hud.getScore(0).getPoints());
-			socket.emit("balloonTouched", json);
+			socket.emit("updateScore", json);
 		} catch (JSONException e) {
 			Gdx.app.log("Error", "Error sending new score");
 		}
@@ -203,44 +198,13 @@ public class PlayScreen extends BaseScreen {
 
 	/**
 	 * Render balloon and destroy it when is out of the screen.
+	 * Listen for a tap.
 	 * Iterate over the lights.
 	 *
 	 * @param delta Delta time
 	 */
 	private void renderBalloons(float delta) {
-		/*final ListIterator iterator = lights.listIterator();
-		while (iterator.hasNext()) {
-			final Balloon b = balloons.get(iterator.nextIndex());
-			final Light l = (Light)iterator.next();
-
-			if (b.getY() > height - 20) {
-				deleteBalloon(b, l);
-				iterator.remove();
-			}
-			b.update(delta);
-			b.onTap(new Balloon.OnTapListener() {
-				@Override
-				public void onTap() {
-					popSound.play(0.5f);
-					if(b.getWord().isDiphthong())
-						hud.getScore(0).addPoints(20);
-					else
-						hud.getScore(0).addPoints(-20);
-					sendNewScore();
-					deleteBalloon(b, l);
-					iterator.remove();
-				}
-			});
-
-			if(Constants.DEBUGGING) {
-				shapeRenderer.setProjectionMatrix(getCamera().combined);
-				shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-				shapeRenderer.setColor(Color.FOREST);
-				shapeRenderer.rect(b.getX() - 5, b.getY() + 60, 60, 80);
-				shapeRenderer.end();
-			}
-		}*/
-		for(final HashMap.Entry<Integer, Balloon> entry : balloons.entrySet()) {
+		for(final HashMap.Entry<String, Balloon> entry : balloons.entrySet()) {
 			final Balloon b = entry.getValue();
 			b.update(delta);
 			if (b.getY() > height - 20) {
@@ -259,6 +223,14 @@ public class PlayScreen extends BaseScreen {
 					deleteBalloon(b, entry.getKey());
 				}
 			});
+
+			if(Constants.DEBUGGING) {
+				shapeRenderer.setProjectionMatrix(getCamera().combined);
+				shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+				shapeRenderer.setColor(Color.FOREST);
+				shapeRenderer.rect(b.getX() - 5, b.getY() + 60, 60, 80);
+				shapeRenderer.end();
+			}
 		}
 	}
 
@@ -267,15 +239,15 @@ public class PlayScreen extends BaseScreen {
 	 * Also indicate to server eliminate
 	 * @param balloon
 	 */
-	private void deleteBalloon(Balloon balloon, int key) {
+	private void deleteBalloon(Balloon balloon, String key) {
 		world.destroyBody(balloon.getBody()); // Remove body from world
-		balloons.remove(key); // Remove from hashmap
+		balloons.remove(key); // Remove from hash map
 		newBalloon = true;
 
 		JSONObject json = new JSONObject();
 		try {
 			json.put("id", balloon.getId());
-			socket.emit("destroyBalloon", json);
+			socket.emit("deleteBalloon", json);
 		} catch (JSONException e) {
 			Gdx.app.log("Error", "Error sending new score");
 		}
@@ -349,7 +321,7 @@ public class PlayScreen extends BaseScreen {
 			public void call(Object... args) {
 				addBalloon();
 			}
-		}).on("balloonTouched", new Emitter.Listener() {
+		}).on("updateScore", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject player = (JSONObject) args[0];
@@ -383,7 +355,6 @@ public class PlayScreen extends BaseScreen {
 			@Override
 			public void call(Object... args) {
 				JSONArray jsonBalloons = (JSONArray) args[0];
-
 				try {
 					for(int i = 0; i < jsonBalloons.length(); i++) {
 						JSONObject jsonBalloon = jsonBalloons.getJSONObject(i);
@@ -392,7 +363,7 @@ public class PlayScreen extends BaseScreen {
 						position.y = ((Double) jsonBalloon.getDouble("y")).floatValue();
 
 						Balloon b = balloonHelper.createBalloon(
-										jsonBalloon.getInt("id"),
+										jsonBalloon.getString("id"),
 										Color.valueOf(jsonBalloon.getString("color")), // Color
 										jsonBalloon.getInt("wordId"), // Word id
 										position.x, position.y); // Position
@@ -402,13 +373,13 @@ public class PlayScreen extends BaseScreen {
 
 				}
 			}
-		}).on("destroyBalloon", new Emitter.Listener() {
+		}).on("deleteBalloon", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject jsonBalloon = (JSONObject) args[0];
-
+				Gdx.app.log(playerId, jsonBalloon.toString());
 				try {
-					balloons.remove(jsonBalloon.getInt("id"));
+					balloons.remove(jsonBalloon.getString("id"));
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
