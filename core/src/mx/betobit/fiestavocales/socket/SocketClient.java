@@ -1,8 +1,6 @@
 package mx.betobit.fiestavocales.socket;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector2;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +42,49 @@ public class SocketClient {
 	 */
 	public void setSocketInterface(SocketInterface socketInterface) {
 		this.socketInterface = socketInterface;
+	}
+
+	/**
+	 * Send balloon to server
+	 * @param b Balloon
+	 */
+	public void emitBalloon(Balloon b) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put("id", b.getId());
+			json.put("color", "#" + b.getColor().toString());
+			json.put("wordId", b.getWord().getId());
+			json.put("x", b.getBody().getPosition().x);
+			json.put("y", b.getBody().getPosition().y);
+			socket.emit("newBalloon", json);
+		} catch (JSONException e) {
+			Gdx.app.log("Error", "Error creating new balloon json");
+		}
+	}
+
+	public void emitDeleteBalloon(Balloon balloon) {
+		JSONObject json = new JSONObject();
+		try {
+			json.put("id", balloon.getId());
+			socket.emit("deleteBalloon", json);
+		} catch (JSONException e) {
+			Gdx.app.log("Error", "Error sending new score");
+		}
+	}
+
+	/**
+	 * Send player score to server.
+	 * @param score
+	 */
+	public void emitScore(int score) {
+		JSONObject json = new JSONObject();
+		try {
+			json.put("id", playerId);
+			json.put("score", score);
+			socket.emit("updateScore", json);
+		} catch (JSONException e) {
+			Gdx.app.log("Error", "Error sending new score");
+		}
 	}
 
 	/**

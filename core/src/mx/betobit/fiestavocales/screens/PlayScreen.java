@@ -106,20 +106,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 				MathUtils.random(0, width), positionY); // Position
 
 		balloons.put(b.getId(), b);
-
-		// Sending balloon to server
-		try {
-			JSONObject json = new JSONObject();
-			json.put("id", b.getId());
-			json.put("color", "#" + b.getColor().toString());
-			json.put("wordId", b.getWord().getId());
-			json.put("x", b.getBody().getPosition().x);
-			json.put("y", b.getBody().getPosition().y);
-			socketClient.socket.emit("newBalloon", json);
-		} catch (JSONException e) {
-			Gdx.app.log("Error", "Error creating new balloon json");
-		}
-
+		socketClient.emitBalloon(b);
 	}
 
 	@Override
@@ -139,7 +126,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 				break;
 			case 'p': // play
 				world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-				BalloonHelper.updateRayHandler();
+				//BalloonHelper.updateRayHandler();
 				hud.update(delta);
 
 				if (Constants.DEBUGGING) {
@@ -163,21 +150,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 	@Override
 	public void dispose() {
 		b2dr.dispose();
-		// TODO: Dispoes balloons
-	}
-
-	/**
-	 * Send player score to server.
-	 */
-	private void sendNewScore() {
-		JSONObject json = new JSONObject();
-		try {
-			json.put("id", socketClient.playerId);
-			json.put("score", hud.getScore(0).getPoints());
-			socketClient.socket.emit("updateScore", json);
-		} catch (JSONException e) {
-			Gdx.app.log("Error", "Error sending new score");
-		}
+		// TODO: Dispose balloons
 	}
 
 	/**
@@ -198,13 +171,14 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 				@Override
 				public void onTap() {
 					popSound.play(0.5f);
+					socketClient.emitScore(hud.getScore(0).getPoints());
+					socketClient.emitDeleteBalloon(b);
 					if(b.getWord().isDiphthong())
 						hud.getScore(0).addPoints(20);
 					else
 						hud.getScore(0).addPoints(-20);
-					sendNewScore();
 					deleteBalloon(entry.getKey());
-					triggerDeleteBalloon(b);
+					newBalloon = true;
 				}
 			});
 
@@ -217,18 +191,6 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 			}
 
 			b.update(delta);
-		}
-	}
-
-	private void triggerDeleteBalloon(Balloon balloon) {
-		newBalloon = true;
-
-		JSONObject json = new JSONObject();
-		try {
-			json.put("id", balloon.getId());
-			socketClient.socket.emit("deleteBalloon", json);
-		} catch (JSONException e) {
-			Gdx.app.log("Error", "Error sending new score");
 		}
 	}
 
@@ -250,6 +212,7 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 	public World getWorld() {
 		return world;
 	}
+
 
 	/********************
 	 * INTERFACE METHODS
