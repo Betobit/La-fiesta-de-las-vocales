@@ -28,6 +28,7 @@ import mx.betobit.fiestavocales.sprites.Loader;
 import mx.betobit.fiestavocales.utils.BalloonHelper;
 import mx.betobit.fiestavocales.utils.Constants;
 import mx.betobit.fiestavocales.utils.Tools;
+import mx.betobit.fiestavocales.utils.WordGenerator;
 
 /**
  * Created by jesusmartinez on 31/10/16.

@@ -41,9 +41,12 @@ public class Balloon extends SpriteAnimation {
 	private String id;
 	private Word word;
 
+	private static WordGenerator wordGenerator;
+
 	public Balloon(String id, Texture spriteSheet, int wordId, Color color, float x, float y) {
 		super(BalloonHelper.getScreen(), 50, 120, x, y);
-		word = WordGenerator.getWord(wordId);
+		wordGenerator = new WordGenerator();
+		word = wordGenerator.getWord(wordId);
 		this.batch = BalloonHelper.getScreen().getGame().getBatch();
 		this.id = id;
 

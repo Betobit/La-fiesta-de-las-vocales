@@ -57,7 +57,7 @@ public class Hud {
 		this.viewport = viewport;
 		start = false;
 		finish = false;
-		time = 10;
+		time = 20;
 		timeCounter = 0f;
 		this.multiplayer = multiplayer;
 		setGameStage();

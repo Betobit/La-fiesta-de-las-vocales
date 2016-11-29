@@ -11,12 +11,6 @@ public class Word {
 	private boolean isDiphthong;
 	private boolean isHiatus;
 
-	public Word(int id, String label, boolean dip, boolean hi) {
-		this.id = id;
-		this.label = label;
-		isDiphthong = dip;
-		isHiatus = hi;
-	}
 
 	public String getLabel() {
 		return label;
