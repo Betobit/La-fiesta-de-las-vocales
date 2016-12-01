@@ -11,7 +11,6 @@ public class Word {
 	private boolean isDiphthong;
 	private boolean isHiatus;
 
-
 	public String getLabel() {
 		return label;
 	}

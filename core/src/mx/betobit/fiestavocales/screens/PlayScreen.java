@@ -162,6 +162,8 @@ public class PlayScreen extends BaseScreen implements SocketInterface {
 	@Override
 	public void dispose() {
 		b2dr.dispose();
+		hud.dispose();
+
 		// TODO: Dispose balloons
 	}
 

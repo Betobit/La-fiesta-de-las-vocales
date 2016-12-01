@@ -4,13 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -22,6 +26,7 @@ import mx.betobit.fiestavocales.FiestaDeLasVocales;
 import mx.betobit.fiestavocales.screens.MenuScreen;
 import mx.betobit.fiestavocales.screens.PlayScreen;
 import mx.betobit.fiestavocales.sprites.Score;
+import mx.betobit.fiestavocales.utils.Constants;
 
 /**
  * Created by jesusmartinez on 21/11/16.
@@ -43,9 +48,9 @@ public class Hud {
 	private float timeCounter;
 	private Label timeLabel;
 	private boolean start;
+	private Sprite timeImage;
 
 	// Table finish
-	private boolean finish;
 	private boolean multiplayer;
 
 	/**
@@ -56,10 +61,10 @@ public class Hud {
 		this.game = game;
 		this.viewport = viewport;
 		start = false;
-		finish = false;
-		time = 20;
+		time = 5;
 		timeCounter = 0f;
 		this.multiplayer = multiplayer;
+		setTimerSprite();
 		setGameStage();
 	}
 
@@ -67,27 +72,47 @@ public class Hud {
 	 * Update timeCount and score.
 	 */
 	public void update(float dt) {
-		if(finish) {
-			stage.draw();
-		} else {
-			if(start) {
-				timeCounter += dt;
-				if (timeCounter >= 1) {
-					if (time > 0) {
-						time--;
-					}
-					timeLabel.setText(String.format("%02d", time));
-					timeCounter = -1;
-				}
-			}
+		/* Not now... deadline is coming
+		game.getBatch().begin();
+		timeImage.draw(game.getBatch());
+		game.getBatch().end();
+		*/
 
+		if(start) {
+			timeCounter += dt;
 			scores.get(0).update(dt);
 			if(multiplayer)
 				scores.get(1).update(dt);
-			stage.draw();
+
+			if (timeCounter >= 1) {
+				if (time > 0) {
+					time--;
+					timeLabel.setText(String.format("%02d", time));
+					timeCounter = -1;
+				} else {
+					start = false;
+				}
+			}
 		}
+		stage.draw();
 	}
 
+	/**
+	 * Create resource for instructions.
+	 */
+	private void setTimerSprite() {
+		Texture texture = new Texture("timer.png");
+		timeImage = new Sprite(texture);
+		timeImage.setSize(100, 100);
+		if(multiplayer)
+			timeImage.setPosition(400, 380);
+		else
+			timeImage.setPosition(400, 380);
+	}
+
+	/**
+	 * Inflate table with options.
+	 */
 	private void setGameStage() {
 		stage = new Stage(viewport);
 		table = new Table();
@@ -98,15 +123,19 @@ public class Hud {
 		timeLabel = new Label(String.format("%02d ", time),
 				new Label.LabelStyle(customFont, Color.WHITE));
 
+		// Score player 1
 		scores = new ArrayList<Score>();
-		scores.add(new Score("Tú"));
+		scores.add(new Score("P1"));
 		table.add(scores.get(0).getLabel())
 				.uniformX().align(Align.center);
+
+		// Timer
 		table.pad(PADDING).add(timeLabel)
 				.uniformX().align(Align.center);
 
+		// Score player 2
 		if(multiplayer) {
-			scores.add(new Score("Oponente"));
+			scores.add(new Score("P2"));
 			table.pad(PADDING).add(scores.get(1).getLabel())
 					.uniformX().align(Align.center);
 		}
@@ -141,12 +170,10 @@ public class Hud {
 	 * Redraw stage to show winner and restart button.
 	 */
 	public void finishGame() {
-		finish = true;
-
 		if(multiplayer) {
 			if(scores.get(0).getPoints() != scores.get(1).getPoints()) {
 				timeLabel.setText(scores.get(0).getPoints() > scores.get(1).getPoints() ?
-						"Tu ganaste :D" : "Gana el oponente :C");
+						"Gana jugador 1" : "Gana jugador 2");
 			} else {
 				timeLabel.setText("Empate");
 			}
@@ -190,9 +217,18 @@ public class Hud {
 		table.add(reset).width(80).height(80).uniform();
 		table.add(home).width(80).height(80).uniform();
 
+
+		if(Constants.DEBUGGING) table.setDebug(true);
+
 		table.center();
-		table.setDebug(true);
 		stage.addActor(table);
 		Gdx.input.setInputProcessor(stage);
+	}
+
+	/**
+	 * Clear memory
+	 */
+	public void dispose() {
+		stage.dispose();
 	}
 }

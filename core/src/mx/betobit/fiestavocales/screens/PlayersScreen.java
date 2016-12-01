@@ -45,7 +45,7 @@ public class PlayersScreen extends BaseScreen {
 		player1.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				getGame().setScreen(new PlayScreen(getGame(), false));
+				getGame().setScreen(new InstructionsScreen(getGame(), false));
 			}
 		});
 
