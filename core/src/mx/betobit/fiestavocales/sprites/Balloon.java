@@ -174,6 +174,7 @@ public class Balloon extends SpriteAnimation {
 	 * Remove light from world
 	 */
 	public void removeLight() {
-		light.remove();
+		if(light != null)
+			light.remove();
 	}
 }

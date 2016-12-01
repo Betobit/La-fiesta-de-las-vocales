@@ -48,6 +48,8 @@ public class InstructionsScreen extends BaseScreen {
 		sprite = new Sprite(texture);
 		sprite.setPosition(300, 0);
 		sprite.setSize(192, 384);
+
+		Gdx.input.setInputProcessor(null);
 	}
 
 	@Override
