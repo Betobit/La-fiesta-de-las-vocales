@@ -66,6 +66,7 @@ public abstract class BaseScreen implements Screen {
 
 	/**
 	 * Return the viewport height.
+	 * @return height
 	 */
 	public int getHeight() {
 		return height;

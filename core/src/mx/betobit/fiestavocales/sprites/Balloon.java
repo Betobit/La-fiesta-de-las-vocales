@@ -109,7 +109,7 @@ public class Balloon extends SpriteAnimation {
 		bdef.position.set(getX(), getY());
 
 		body = BalloonHelper.getScreen().getWorld().createBody(bdef);
-		shape.setRadius(1f);
+		shape.setRadius(7f);
 		fdef.shape = shape;
 		fdef.density = 1f;
 		fdef.restitution = 0f;

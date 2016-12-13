@@ -30,11 +30,11 @@ public class SocketClient {
 		try {
 			socket = IO.socket(Constants.SERVER_IP);
 			socket.connect();
+			configSocketEvents();
 		} catch(Exception e){
 			System.out.println(e);
 		}
 
-		configSocketEvents();
 	}
 
 	/**

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.SerializationException;
 
 import java.util.ArrayList;
 
@@ -23,9 +24,14 @@ public class WordGenerator {
 		JsonValue wordsJSON = jsonReader.parse(handle).child();*/
 		WORDS = new ArrayList<Word>();
 		Json json= new Json();
-		ArrayList<JsonValue> list = json.fromJson(ArrayList.class,
-				Gdx.files.external("data/words.json"));
-
+		ArrayList<JsonValue> list;
+		try {
+			 list = json.fromJson(ArrayList.class,
+					Gdx.files.external("data/words.json"));
+		} catch(SerializationException e) {
+			list = json.fromJson(ArrayList.class,
+					Gdx.files.internal("words.json"));
+		}
 		for (JsonValue v : list) {
 			WORDS.add(json.readValue(Word.class, v));
 		}

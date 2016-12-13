@@ -61,7 +61,7 @@ public class Hud {
 		this.game = game;
 		this.viewport = viewport;
 		start = false;
-		time = 5;
+		time = 60;
 		timeCounter = 0f;
 		this.multiplayer = multiplayer;
 		setTimerSprite();
@@ -178,7 +178,7 @@ public class Hud {
 				timeLabel.setText("Empate");
 			}
 		} else {
-			timeLabel.setText("Puntuación: " + scores.get(0).getPoints());
+			timeLabel.setText("Puntuacion: " + scores.get(0).getPoints());
 		}
 
 		stage.dispose();
